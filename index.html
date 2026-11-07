@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>M Gest — il programma</title>
+<!--
+  M Gest — PAGINA ONLINE, solo da guardare (versione 2, 7/11/2026).
+  La pagina sta qui (GitHub Pages) e chiede i dati allo script di Google («magazzino», Codice.gs) SENZA i cookie di
+  Google: così, con più account Google nel browser, Google non infila «/u/2/» e non dà «Impossibile aprire il file».
+  Qui dentro NON ci sono dati né indirizzi: l'ID dello script sta dopo il # del link (…/index.html#AKfy…), e il # non
+  viene mai mandato a GitHub. I dati arrivano solo col PIN giusto o col «ricordami».
+-->
+<style>
+:root{--sf:#f4f1ea;--sc:#ffffff;--tx:#1d1d1b;--deb:#6b6b66;--li:#d9d4c7;--ac:#C46F1F;--ac2:#fbe9d7;--ve:#1E8449;
+  --ro:#b03a2e;--gi:#f6d860;--ogg:#C46F1F;--fuori:#ebe7dd;--ora:#e8e3d7}
+@media (prefers-color-scheme:dark){:root{--sf:#111110;--sc:#1c1c1a;--tx:#ecebe6;--deb:#a3a29b;--li:#34332f;--ac:#E08A3A;
+  --ac2:#3a2a1a;--ro:#ff7b6b;--fuori:#171716;--ora:#2a2926;--ve:#5cd08a}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--sf);color:var(--tx);font:16px/1.35 -apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit}
+.b{border:0;border-radius:8px;padding:9px 13px;background:var(--ac);color:#fff;font-weight:700;font-size:14px;cursor:pointer}
+.b.gr{background:transparent;color:var(--tx);border:1px solid var(--li)}
+.deb{color:var(--deb);font-size:13px}
+.err{color:var(--ro);font-weight:600}
+header{position:sticky;top:0;z-index:5;background:var(--sf);border-bottom:1px solid var(--li);
+  padding:8px 16px calc(8px);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+header h1{font-size:18px;margin:0;flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header .deb{flex-basis:100%;order:3}
+main{max-width:1100px;margin:0 auto;padding:0 16px 40px}
+/* l'ingresso */
+#porta{max-width:420px;margin:40px auto;text-align:center}
+#porta input[type=password]{font-size:26px;padding:10px;width:9em;text-align:center;letter-spacing:6px;border:1px solid var(--li);
+  border-radius:10px;background:var(--sc);color:var(--tx)}
+#porta label{display:block;margin:14px 0}
+/* gli avvisi */
+#avvisi{margin:10px 0}
+#avvisi summary{cursor:pointer;font-weight:700;padding:6px 0}
+#avvisi p{margin:4px 0;font-size:14px}
+/* il calendario */
+.sett-testa{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;position:sticky;top:var(--alto,58px);z-index:4;
+  background:var(--sf);padding:6px 0;font-size:12px;color:var(--deb);text-align:center;font-weight:700}
+.mese{font-weight:800;font-size:15px;margin:16px 0 6px}
+.sett{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px}
+.g{background:var(--sc);border:1px solid var(--li);border-radius:8px;min-height:78px;padding:4px;cursor:pointer;overflow:hidden;
+  display:flex;flex-direction:column;gap:2px;text-align:left}
+.g.fuori{background:var(--fuori);color:var(--deb);cursor:default;border-color:transparent}
+.g.oggi{border:2px solid var(--ogg)}
+.g .n{font-weight:800;font-size:14px}
+.g.oggi .n{color:var(--ogg)}
+.g .pz{font-size:10px;line-height:1.25;border-radius:4px;padding:1px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  border:1px solid rgba(0,0,0,.15)}
+.g .piu{font-size:10px;color:var(--deb)}
+@media (min-width:700px){.g{min-height:104px}.g .pz{font-size:12px}}
+/* il giorno, come il planner */
+.giorno-testa{display:flex;align-items:center;gap:8px;margin:12px 0 8px}
+.giorno-testa h2{flex:1;font-size:17px;margin:0;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.giorno-testa small{color:var(--ogg);margin-left:6px}
+.griglia-fuori{overflow:auto;border:1px solid var(--li);border-radius:10px;background:var(--sc);
+  max-height:calc(100vh - var(--alto,58px) - 110px);max-height:calc(100dvh - var(--alto,58px) - 110px);-webkit-overflow-scrolling:touch}
+.griglia{display:grid;position:relative;min-width:100%}
+.col-testa{position:sticky;top:0;z-index:3;background:var(--sc);border-bottom:1px solid var(--li);padding:6px 4px;
+  font-weight:700;font-size:13px;text-align:center;line-height:1.2}
+.col-testa .deb{font-size:11px;font-weight:400}
+.ore{position:sticky;left:0;z-index:2;background:var(--sc);border-right:1px solid var(--li)}
+.angolo{left:0;z-index:4}
+.ore div{position:absolute;right:4px;font-size:11px;color:var(--deb);transform:translateY(-50%)}
+.col{position:relative;border-right:1px solid var(--li)}
+.riga-ora{position:absolute;left:0;right:0;border-top:1px solid var(--ora)}
+.blocco{position:absolute;left:3px;right:3px;border-radius:6px;padding:3px 5px;font-size:12px;line-height:1.2;overflow:hidden;
+  cursor:pointer;border:1px solid rgba(0,0,0,.25);box-shadow:0 1px 2px rgba(0,0,0,.15)}
+.blocco b{display:block;font-size:12px}
+.blocco.dc{outline:2px dashed var(--gi);outline-offset:-2px}
+.adesso{position:absolute;left:0;right:0;border-top:2px solid var(--ro);z-index:1}
+.sotto p{margin:6px 0;color:var(--deb);font-size:14px}
+/* la scheda del servizio */
+#velo{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20;display:none;align-items:flex-end;justify-content:center}
+#velo.su{display:flex}
+#scheda{background:var(--sc);width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:16px 16px 0 0;
+  padding:16px 16px calc(20px + env(safe-area-inset-bottom))}
+@media (min-width:700px){#velo{align-items:center}#scheda{border-radius:16px}}
+#scheda h3{margin:0 0 4px;font-size:18px}
+.chip{display:inline-block;background:var(--gi);color:#000;border-radius:6px;padding:0 6px;font-size:12px;font-weight:700;margin-right:4px}
+.tp{margin-top:10px;padding:8px 0 0 10px;border-left:3px solid var(--li)}
+.tp .q{font-weight:700}
+.tel{display:inline-block;margin-top:6px;color:var(--ve);font-weight:800;text-decoration:none;font-size:17px}
+.prezzo{margin-top:12px;font-weight:800;font-size:16px}
+.nascosto{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <h1 id="titolo">M Gest</h1>
+  <button class="b nascosto" id="agg" type="button">AGGIORNA</button>
+  <button class="b gr nascosto" id="esci" type="button">ESCI</button>
+  <div class="deb" id="sotto">solo da guardare</div>
+</header>
+<main>
+  <div id="porta" class="nascosto">
+    <p>Scrivi il PIN per vedere il programma.</p>
+    <input id="pin" type="password" inputmode="numeric" autocomplete="off" aria-label="PIN">
+    <label class="deb"><input type="checkbox" id="ricorda" checked> Ricordami su questo dispositivo per 30 giorni</label>
+    <button class="b" id="entra" type="button">ENTRA</button>
+    <p id="msg" class="err"></p>
+  </div>
+  <p id="carica" class="deb" style="margin-top:24px">Un momento…</p>
+  <div id="vista"></div>
+</main>
+<div id="velo"><div id="scheda" role="dialog" aria-modal="true"></div></div>
+<script>
+"use strict";
+var CHIAVE_G = "mgest_gettone", CHIAVE_S = "mgest_script", OGNI = 10 * 60 * 1000;
+var pinMem = "", dati = null, perId = {}, giornoAperto = null, timer = null;
+function $(i) { return document.getElementById(i); }
+function e(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+  return {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]; }); }
+function leggi(k) { try { return localStorage.getItem(k) || ""; } catch (x) { return ""; } }
+function scrivi(k, v) { try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch (x) {} }
+
+// ── dove sta lo script: dopo il # del link (mai nel codice pubblico) ─────────────────────────────────────────────
+function indirizzo() {
+  var h = decodeURIComponent((location.hash || "").replace(/^#/, "").split("&")[0]);
+  if (/^[A-Za-z0-9_-]{20,}$/.test(h)) { scrivi(CHIAVE_S, h); }
+  else if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//.test(h)) { return h; }      // solo per le prove sul PC
+  var id = leggi(CHIAVE_S);
+  return id ? "https://script.google.com/macros/s/" + id + "/exec" : "";
+}
+
+function chiedi(corpo) {
+  var url = indirizzo();
+  if (!url) return Promise.reject(new Error("Il link è incompleto: apri il link intero che ti hanno mandato (con il # e il codice dopo)."));
+  // testo semplice, senza cookie: niente «/u/2/» di Google e niente controllo in più del browser
+  return fetch(url, {method: "POST", body: JSON.stringify(corpo), credentials: "omit", redirect: "follow", cache: "no-store"})
+    .then(function (r) { if (!r.ok) throw new Error("Google ha risposto " + r.status); return r.json(); });
+}
+
+// ── l'ingresso ──────────────────────────────────────────────────────────────────────────────────────────────
+function mostraPorta(msg) {
+  $("carica").classList.add("nascosto"); $("vista").innerHTML = ""; chiudiScheda(true);
+  $("agg").classList.add("nascosto"); $("esci").classList.add("nascosto");
+  $("porta").classList.remove("nascosto"); $("msg").textContent = msg || ""; $("pin").focus();
+}
+function risposta(r) {
+  if (r.errore) { if (r.pin) scrivi(CHIAVE_G, ""); if (!dati || r.pin) { pinMem = ""; mostraPorta(r.errore); } else avviso(r.errore); return; }
+  if (r.gettone) scrivi(CHIAVE_G, r.gettone);
+  dati = JSON.parse(r.dati); perId = {};
+  dati.servizi.forEach(function (s) { perId[s.id] = s; });
+  $("porta").classList.add("nascosto"); $("carica").classList.add("nascosto");
+  $("agg").classList.remove("nascosto"); $("esci").classList.remove("nascosto");
+  $("titolo").textContent = dati.ditta || "M Gest";
+  $("sotto").textContent = "aggiornata alle " + dati.aggiornata + " · solo da guardare";
+  disegna();
+}
+function guasto(x) { if (dati) avviso("Non riesco ad aggiornare: " + (x && x.message || x)); else mostraPorta("Non riesco a parlare con Google: " + (x && x.message || x)); }
+function avviso(t) { $("sotto").textContent = t; }
+function aggiorna() {
+  var g = leggi(CHIAVE_G);
+  if (!dati) $("carica").classList.remove("nascosto");
+  if (g) return chiedi({azione: "gettone", gettone: g}).then(risposta, guasto);
+  if (pinMem) return chiedi({azione: "entra", pin: pinMem, ricordami: false}).then(risposta, guasto);
+  mostraPorta("");
+}
+$("entra").onclick = function () {
+  var p = $("pin").value.trim(); if (!p) return;
+  $("pin").value = ""; pinMem = p; $("msg").textContent = ""; $("carica").classList.remove("nascosto");
+  chiedi({azione: "entra", pin: p, ricordami: $("ricorda").checked}).then(function (r) { if (r.errore) pinMem = ""; risposta(r); }, guasto);
+};
+$("pin").onkeydown = function (ev) { if (ev.key === "Enter") $("entra").onclick(); };
+$("agg").onclick = function () { avviso("Aggiorno…"); aggiorna(); };
+$("esci").onclick = function () {
+  var g = leggi(CHIAVE_G); scrivi(CHIAVE_G, ""); pinMem = ""; dati = null; giornoAperto = null;
+  if (g) chiedi({azione: "esci", gettone: g}).catch(function () {});
+  history.replaceState({}, "", location.pathname + location.search + location.hash);
+  mostraPorta("Uscito.");
+};
+
+// ── date ────────────────────────────────────────────────────────────────────────────────────────────────────
+var GG = ["dom", "lun", "mar", "mer", "gio", "ven", "sab"];
+var GGL = ["domenica", "lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato"];
+var MM = ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre"];
+function d(iso) { return new Date(iso.slice(0, 10) + "T12:00:00"); }
+function iso(x) { return x.getFullYear() + "-" + ("0" + (x.getMonth() + 1)).slice(-2) + "-" + ("0" + x.getDate()).slice(-2); }
+function piu(x, n) { var y = new Date(x.getTime()); y.setDate(y.getDate() + n); return y; }
+function oggiIso() { return iso(new Date()); }
+function minuti(t) { return Number(t.slice(11, 13)) * 60 + Number(t.slice(14, 16)); }
+function euro(v) { return Number(v).toLocaleString("it-IT", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " €"; }
+function testoSu(c) {
+  var m = /^#?([0-9a-f]{6})$/i.exec(c || ""); if (!m) return "#000";
+  var n = parseInt(m[1], 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255;
+  return (0.299 * r + 0.587 * g + 0.114 * b) > 150 ? "#000" : "#fff";
+}
+function colore(s) { return /^#[0-9a-f]{6}$/i.test(s.colore || "") ? s.colore : "#FFFFFF"; }
+function riassunto(s) {
+  var t = s.tappe.filter(function (x) { return !x.vuoto; });
+  var cli = t.map(function (x) { return x.cliente; }).filter(Boolean);
+  return cli.length ? cli[0] + (cli.length > 1 ? " +" + (cli.length - 1) : "") : (s.tappe.length ? s.tappe[0].da + " → " + s.tappe[s.tappe.length - 1].a : "");
+}
+
+// ── il calendario: settimane che scorrono, si apre su oggi ──────────────────────────────────────────────────
+function disegna() {
+  if (!dati) return;
+  if (giornoAperto) return disegnaGiorno(giornoAperto, false);
+  var perGiorno = {};
+  dati.giorni.forEach(function (g) { perGiorno[g.giorno] = g; });
+  var primo = d(dati.giorni[0].giorno), ultimo = d(dati.giorni[dati.giorni.length - 1].giorno), oi = oggiIso();
+  var inizio = piu(primo, -((primo.getDay() + 6) % 7));                   // lunedì della prima settimana
+  var h = "";
+  if (dati.avvisi && dati.avvisi.length) {
+    var urg = dati.avvisi.filter(function (a) { return a.urgente; }).length;
+    h += '<details id="avvisi"' + (urg ? " open" : "") + '><summary>Avvisi (' + dati.avvisi.length + ')' +
+      (urg ? ' <span class="err">· ' + urg + ' urgenti</span>' : "") + '</summary>' +
+      dati.avvisi.map(function (a) { return '<p class="' + (a.urgente ? "err" : "") + '">' + e(a.testo) + "</p>"; }).join("") + "</details>";
+  }
+  h += '<div class="sett-testa"><div>lun</div><div>mar</div><div>mer</div><div>gio</div><div>ven</div><div>sab</div><div>dom</div></div>';
+  var meseVisto = -1;
+  for (var w = inizio; w <= ultimo; w = piu(w, 7)) {
+    var dom = piu(w, 6);
+    var m = (w < primo ? primo : w).getMonth();
+    if (m !== meseVisto) { h += '<div class="mese">' + MM[m] + " " + (w < primo ? primo : w).getFullYear() + "</div>"; meseVisto = m; }
+    h += '<div class="sett"' + (iso(w) <= oi && oi <= iso(dom) ? ' id="questa"' : "") + ">";
+    for (var k = 0; k < 7; k++) {
+      var x = piu(w, k), xi = iso(x), g = perGiorno[xi];
+      if (!g) { h += '<div class="g fuori"><span class="n">' + x.getDate() + "</span></div>"; continue; }
+      var pz = g.servizi.map(function (sv) { var s = perId[sv[0]]; return s ? '<span class="pz" style="background:' + colore(s) +
+        ";color:" + testoSu(colore(s)) + '">' + e(sv[1].slice(0, 5)) + " " + e(riassunto(s)) + "</span>" : ""; });
+      var vedi = pz.slice(0, 3).join("") + (pz.length > 3 ? '<span class="piu">+' + (pz.length - 3) + " altri</span>" : "");
+      h += '<button type="button" class="g' + (xi === oi ? " oggi" : "") + '" data-g="' + xi + '" aria-label="' +
+        e(GGL[x.getDay()] + " " + x.getDate() + " " + MM[x.getMonth()] + ", " + g.servizi.length + " servizi") + '">' +
+        '<span class="n">' + x.getDate() + "</span>" + vedi + "</button>";
+    }
+    h += "</div>";
+  }
+  $("vista").innerHTML = h;
+  Array.prototype.forEach.call(document.querySelectorAll(".g[data-g]"), function (b) {
+    b.onclick = function () { apriGiorno(b.getAttribute("data-g")); };
+  });
+  document.documentElement.style.setProperty("--alto", document.querySelector("header").offsetHeight + "px");
+  if (!disegna.fatto) {                                                    // la prima volta: si parte dalla settimana di oggi
+    disegna.fatto = true;
+    var q = $("questa");
+    if (q) window.scrollTo(0, q.getBoundingClientRect().top + window.scrollY - document.querySelector("header").offsetHeight - 40);
+  }
+}
+
+// ── il giorno, come il planner PER MEZZO: mezzi in colonna, ore in giù, colore dell'autista ────────────────
+function apriGiorno(g) { giornoAperto = g; disegna.scroll = window.scrollY; history.pushState({g: g}, ""); disegnaGiorno(g, true); }
+function disegnaGiorno(gi, scorri) {
+  var g = null;
+  dati.giorni.forEach(function (x) { if (x.giorno === gi) g = x; });
+  if (!g) { giornoAperto = null; return disegna(); }
+  var x = d(gi), oi = oggiIso(), q = gi === oi ? "OGGI" : gi === iso(piu(d(oi), 1)) ? "DOMANI" : "";
+  var i = dati.giorni.indexOf(g);
+  var prima = i > 0 ? dati.giorni[i - 1].giorno : "", dopo = i < dati.giorni.length - 1 ? dati.giorni[i + 1].giorno : "";
+  var h = '<div class="giorno-testa"><button class="b gr" type="button" id="cal">◀ CALENDARIO</button>' +
+    '<button class="b gr" type="button" id="prima" style="margin-left:auto"' + (prima ? "" : " disabled") + ' aria-label="giorno prima">◀</button>' +
+    '<button class="b gr" type="button" id="dopo"' + (dopo ? "" : " disabled") + ' aria-label="giorno dopo">▶</button></div>' +
+    '<div class="giorno-testa"><h2>' + GGL[x.getDay()] + " " + x.getDate() + " " + MM[x.getMonth()] + (q ? "<small>" + q + "</small>" : "") + "</h2></div>";
+  // le colonne: i mezzi del programma, più «da assegnare» se serve
+  var colonne = dati.mezzi.map(function (m) { return {id: m.id, nome: m.nome, sotto: m.targa}; });
+  var servizi = g.servizi.map(function (sv) { return {s: perId[sv[0]], orario: sv[1]}; }).filter(function (o) { return o.s; });
+  var noti = {}; colonne.forEach(function (c) { noti[c.id] = true; });
+  servizi.forEach(function (o) {
+    if (!noti[o.s.mezzo_id]) { noti[o.s.mezzo_id] = true; colonne.push({id: o.s.mezzo_id, nome: o.s.da_assegnare ? "Da assegnare" : o.s.mezzo, sotto: ""}); }
+  });
+  // le ore: dalle 6 alle 22, allargate se un servizio comincia prima o finisce dopo
+  var da = 6 * 60, a = 22 * 60, giorno0 = gi + " 00:00", giorno1 = iso(piu(x, 1)) + " 00:00";
+  servizi.forEach(function (o) {
+    var i0 = o.s.inizio < giorno0 ? 0 : minuti(o.s.inizio), f0 = o.s.fine >= giorno1 ? 1440 : minuti(o.s.fine);
+    o.i = i0; o.f = Math.max(f0, i0 + 20);
+    da = Math.min(da, Math.floor(i0 / 60) * 60); a = Math.max(a, Math.ceil(o.f / 60) * 60);
+  });
+  a = Math.min(a, 1440);
+  var PX = 46, alto = (a - da) / 60 * PX, larga = Math.max(92, Math.floor((Math.min(window.innerWidth, 1100) - 32 - 44 - 20) / Math.max(colonne.length, 1)));
+  h += '<div class="griglia-fuori"><div class="griglia" style="grid-template-columns:44px repeat(' + colonne.length + "," + larga + 'px)">';
+  h += '<div class="col-testa angolo"></div>' + colonne.map(function (c) {
+    return '<div class="col-testa">' + e(c.nome) + (c.sotto ? '<div class="deb">' + e(c.sotto) + "</div>" : "") + "</div>"; }).join("");
+  var ore = "";
+  for (var m = da; m <= a; m += 60) ore += '<div style="top:' + ((m - da) / 60 * PX) + 'px">' + ("0" + (m / 60 % 24)).slice(-2) + ":00</div>";
+  h += '<div class="ore" style="height:' + alto + 'px">' + ore + "</div>";
+  var righe = ""; for (var r = da; r <= a; r += 60) righe += '<div class="riga-ora" style="top:' + ((r - da) / 60 * PX) + 'px"></div>';
+  var adesso = new Date(), mAdesso = adesso.getHours() * 60 + adesso.getMinutes();
+  var linea = gi === oi && mAdesso >= da && mAdesso <= a ? '<div class="adesso" style="top:' + ((mAdesso - da) / 60 * PX) + 'px"></div>' : "";
+  colonne.forEach(function (c) {
+    h += '<div class="col" style="height:' + alto + 'px">' + righe + linea;
+    servizi.filter(function (o) { return o.s.mezzo_id === c.id; }).forEach(function (o) {
+      var top = (o.i - da) / 60 * PX, alt = Math.max((o.f - o.i) / 60 * PX - 2, 22), col = colore(o.s);
+      h += '<div class="blocco' + (o.s.da_confermare ? " dc" : "") + '" role="button" tabindex="0" data-s="' + o.s.id + '" style="top:' + top +
+        "px;height:" + alt + "px;background:" + col + ";color:" + testoSu(col) + '"><b>' + e(o.orario) + "</b>" +
+        e(o.s.autista || "senza autista") + "<br>" + e(riassunto(o.s)) + "</div>";
+    });
+    h += "</div>";
+  });
+  h += "</div></div><div class=\"sotto\">";
+  if (!servizi.length) h += "<p>Nessun servizio.</p>";
+  [["Mezzi fermi", g.fermi], ["Mezzi senza servizio", g.senza_servizio], ["Autisti assenti", g.assenti]].forEach(function (rr) {
+    if (rr[1].length) h += "<p>" + rr[0] + ": " + e(rr[1].join(", ")) + "</p>";
+  });
+  h += "</div>";
+  $("vista").innerHTML = h;
+  $("cal").onclick = function () { history.back(); };
+  $("prima").onclick = function () { if (prima) { giornoAperto = prima; history.replaceState({g: prima}, ""); disegnaGiorno(prima, true); } };
+  $("dopo").onclick = function () { if (dopo) { giornoAperto = dopo; history.replaceState({g: dopo}, ""); disegnaGiorno(dopo, true); } };
+  Array.prototype.forEach.call(document.querySelectorAll(".blocco"), function (b) {
+    b.onclick = function () { apriScheda(Number(b.getAttribute("data-s")), b.querySelector("b").textContent); };
+    b.onkeydown = function (ev) { if (ev.key === "Enter") b.onclick(); };
+  });
+  // si parte dalla prima ora con un servizio (o da adesso, se è oggi)
+  // si parte da adesso (se è oggi) o dal primo servizio del giorno; la griglia scorre dentro il suo riquadro
+  var fuori = document.querySelector(".griglia-fuori");
+  if (fuori && scorri) {
+    window.scrollTo(0, 0);
+    // il primo servizio che COMINCIA oggi (quello della sera prima che continua dopo mezzanotte non conta)
+    var comincia = servizi.filter(function (o) { return o.s.inizio >= giorno0; });
+    var primo = (comincia.length ? comincia : servizi).slice().sort(function (p, q) { return p.i - q.i; })[0];
+    var primoMin = primo ? primo.i : 8 * 60;
+    if (gi === oi && mAdesso >= da && mAdesso <= a) primoMin = Math.min(primoMin, mAdesso);
+    fuori.scrollTop = Math.max(0, (primoMin - da) / 60 * PX - 20);
+    var bl = primo && document.querySelector('.blocco[data-s="' + primo.s.id + '"]');
+    if (bl) fuori.scrollLeft = Math.max(0, bl.parentElement.offsetLeft - 44);
+  }
+}
+
+// ── la scheda del servizio ───────────────────────────────────────────────────────────────────────────────────
+function apriScheda(id, orario) {
+  var s = perId[id]; if (!s) return;
+  var h = "<h3>🕗 " + e(orario) + "</h3>" +
+    "<div>🚐 " + e(s.da_assegnare ? "da assegnare" : s.mezzo) + (s.targa ? " · " + e(s.targa) : "") + "</div>" +
+    "<div>" + (s.autista ? "👤 " + e(s.autista) : '<span class="chip">SENZA AUTISTA</span>') + (s.da_confermare ? ' <span class="chip">DA CONFERMARE</span>' : "") + "</div>" +
+    (s.evento ? '<div class="deb">' + e(s.evento) + "</div>" : "");
+  s.tappe.forEach(function (t) {
+    h += '<div class="tp"><div class="q">' + e(t.ora) + " · " + e(t.da) + " → " + e(t.a) + "</div>";
+    if (t.vuoto) { h += '<div class="deb">a vuoto</div></div>'; return; }
+    var info = [];
+    if (t.cliente) info.push("<b>" + e(t.cliente) + "</b>");
+    if (t.passeggeri) info.push(e(t.passeggeri) + " pax");
+    if (t.seggiolini) info.push(e(t.seggiolini) + " seggiolini");
+    if (t.volo) info.push("✈ " + e(t.volo));
+    if (t.prezzo != null) info.push("💶 " + euro(t.prezzo));
+    if (info.length) h += "<div>" + info.join(" · ") + "</div>";
+    if (t.telefono) h += '<a class="tel" href="tel:' + e(String(t.telefono).replace(/[^0-9+]/g, "")) + '">📞 ' + e(t.telefono) + "</a>";
+    h += "</div>";
+  });
+  if (s.prezzo != null) h += '<div class="prezzo">💶 Prezzo del servizio ' + euro(s.prezzo) + "</div>";
+  h += '<p style="margin-top:16px"><button class="b" type="button" id="chiudi">CHIUDI</button></p>';
+  $("scheda").innerHTML = h;
+  $("velo").classList.add("su");
+  history.pushState({g: giornoAperto, s: id}, "");
+  $("chiudi").onclick = function () { history.back(); };
+}
+function chiudiScheda(subito) { $("velo").classList.remove("su"); }
+$("velo").onclick = function (ev) { if (ev.target === $("velo")) history.back(); };
+document.addEventListener("keydown", function (ev) { if (ev.key === "Escape" && $("velo").classList.contains("su")) history.back(); });
+
+// il tasto «indietro» del telefono: scheda → giorno → calendario
+window.addEventListener("popstate", function (ev) {
+  var st = ev.state || {};
+  chiudiScheda();
+  if (!dati) return;
+  if (st.s) return;
+  if (st.g) { if (giornoAperto !== st.g) { giornoAperto = st.g; disegnaGiorno(st.g, true); } return; }
+  if (giornoAperto) { giornoAperto = null; disegna(); window.scrollTo(0, disegna.scroll || 0); }
+});
+window.addEventListener("resize", function () { if (dati && giornoAperto) disegnaGiorno(giornoAperto, false); });
+
+// l'aggiornamento da solo ogni 10 minuti (e quando si torna sulla pagina dopo un po')
+var ultimoGiro = 0;
+function giro() { if (dati && !$("velo").classList.contains("su")) { ultimoGiro = Date.now(); aggiorna(); } }
+setInterval(giro, OGNI);
+document.addEventListener("visibilitychange", function () { if (!document.hidden && Date.now() - ultimoGiro > OGNI) giro(); });
+
+history.replaceState({}, "");
+ultimoGiro = Date.now();
+if (!indirizzo()) { $("carica").classList.add("nascosto"); $("porta").classList.remove("nascosto"); $("msg").textContent = "Il link è incompleto: apri il link intero che ti hanno mandato (con il # e il codice dopo)."; }
+else aggiorna();
+</script>
+</body>
+</html>
