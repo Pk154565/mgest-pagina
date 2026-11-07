@@ -193,6 +193,7 @@ function testoSu(c) {
   return (0.299 * r + 0.587 * g + 0.114 * b) > 150 ? "#000" : "#fff";
 }
 function colore(s) { return /^#[0-9a-f]{6}$/i.test(s.colore || "") ? s.colore : "#FFFFFF"; }
+function chiaveMezzo(s) { return s.mezzo_id != null ? s.mezzo_id : "n:" + (s.mezzo || ""); }   // dati vecchi: senza mezzo_id
 function riassunto(s) {
   var t = s.tappe.filter(function (x) { return !x.vuoto; });
   var cli = t.map(function (x) { return x.cliente; }).filter(Boolean);
@@ -246,7 +247,11 @@ function disegna() {
 }
 
 // ── il giorno, come il planner PER MEZZO: mezzi in colonna, ore in giù, colore dell'autista ────────────────
-function apriGiorno(g) { giornoAperto = g; disegna.scroll = window.scrollY; history.pushState({g: g}, ""); disegnaGiorno(g, true); }
+function apriGiorno(g) {
+  giornoAperto = g; disegna.scroll = window.scrollY; history.pushState({g: g}, "");
+  try { disegnaGiorno(g, true); }
+  catch (x) { giornoAperto = null; history.replaceState({}, ""); disegna(); avviso("Non riesco ad aprire il giorno: " + (x && x.message || x)); }
+}
 function disegnaGiorno(gi, scorri) {
   var g = null;
   dati.giorni.forEach(function (x) { if (x.giorno === gi) g = x; });
@@ -258,12 +263,14 @@ function disegnaGiorno(gi, scorri) {
     '<button class="b gr" type="button" id="prima" style="margin-left:auto"' + (prima ? "" : " disabled") + ' aria-label="giorno prima">◀</button>' +
     '<button class="b gr" type="button" id="dopo"' + (dopo ? "" : " disabled") + ' aria-label="giorno dopo">▶</button></div>' +
     '<div class="giorno-testa"><h2>' + GGL[x.getDay()] + " " + x.getDate() + " " + MM[x.getMonth()] + (q ? "<small>" + q + "</small>" : "") + "</h2></div>";
-  // le colonne: i mezzi del programma, più «da assegnare» se serve
-  var colonne = dati.mezzi.map(function (m) { return {id: m.id, nome: m.nome, sotto: m.targa}; });
+  // le colonne: i mezzi del programma, più «da assegnare» se serve. Se i dati vengono da un M Gest più vecchio (senza
+  // l'elenco dei mezzi: 7/11, il giorno non si apriva), le colonne si fanno coi mezzi dei servizi.
+  var colonne = (dati.mezzi || []).map(function (m) { return {id: m.id, nome: m.nome, sotto: m.targa}; });
   var servizi = g.servizi.map(function (sv) { return {s: perId[sv[0]], orario: sv[1]}; }).filter(function (o) { return o.s; });
   var noti = {}; colonne.forEach(function (c) { noti[c.id] = true; });
   servizi.forEach(function (o) {
-    if (!noti[o.s.mezzo_id]) { noti[o.s.mezzo_id] = true; colonne.push({id: o.s.mezzo_id, nome: o.s.da_assegnare ? "Da assegnare" : o.s.mezzo, sotto: ""}); }
+    var k = chiaveMezzo(o.s);
+    if (!noti[k]) { noti[k] = true; colonne.push({id: k, nome: o.s.da_assegnare ? "Da assegnare" : (o.s.mezzo || "Da assegnare"), sotto: o.s.mezzo_id == null ? (o.s.targa || "") : ""}); }
   });
   // le ore: dalle 6 alle 22, allargate se un servizio comincia prima o finisce dopo
   var da = 6 * 60, a = 22 * 60, giorno0 = gi + " 00:00", giorno1 = iso(piu(x, 1)) + " 00:00";
@@ -285,7 +292,7 @@ function disegnaGiorno(gi, scorri) {
   var linea = gi === oi && mAdesso >= da && mAdesso <= a ? '<div class="adesso" style="top:' + ((mAdesso - da) / 60 * PX) + 'px"></div>' : "";
   colonne.forEach(function (c) {
     h += '<div class="col" style="height:' + alto + 'px">' + righe + linea;
-    servizi.filter(function (o) { return o.s.mezzo_id === c.id; }).forEach(function (o) {
+    servizi.filter(function (o) { return chiaveMezzo(o.s) === c.id; }).forEach(function (o) {
       var top = (o.i - da) / 60 * PX, alt = Math.max((o.f - o.i) / 60 * PX - 2, 22), col = colore(o.s);
       h += '<div class="blocco' + (o.s.da_confermare ? " dc" : "") + '" role="button" tabindex="0" data-s="' + o.s.id + '" style="top:' + top +
         "px;height:" + alt + "px;background:" + col + ";color:" + testoSu(col) + '"><b>' + e(o.orario) + "</b>" +
