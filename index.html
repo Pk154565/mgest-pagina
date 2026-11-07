@@ -74,6 +74,10 @@ main{max-width:1100px;margin:0 auto;padding:0 16px 40px}
   cursor:pointer;border:1px solid rgba(0,0,0,.25);box-shadow:0 1px 2px rgba(0,0,0,.15)}
 .blocco b{display:block;font-size:12px}
 .blocco.dc{outline:2px dashed var(--gi);outline-offset:-2px}
+/* servizi che si sovrappongono (stesso mezzo o stesso autista): lampeggiano, come chiesto da Moreno il 7/11 */
+.sovr{box-shadow:0 0 0 3px var(--ro)!important;animation:lampeggia 1s steps(2,start) infinite}
+@keyframes lampeggia{50%{opacity:.3}}
+@media (prefers-reduced-motion:reduce){.sovr{animation:none}}
 .adesso{position:absolute;left:0;right:0;border-top:2px solid var(--ro);z-index:1}
 .sotto p{margin:6px 0;color:var(--deb);font-size:14px}
 /* la scheda del servizio */
@@ -194,6 +198,17 @@ function testoSu(c) {
 }
 function colore(s) { return /^#[0-9a-f]{6}$/i.test(s.colore || "") ? s.colore : "#FFFFFF"; }
 function chiaveMezzo(s) { return s.mezzo_id != null ? s.mezzo_id : "n:" + (s.mezzo || ""); }   // dati vecchi: senza mezzo_id
+/** I servizi del giorno che si sovrappongono a un altro: stesso mezzo (non «da assegnare») o stesso autista. */
+function sovrapposti(g) {
+  var ss = g.servizi.map(function (sv) { return perId[sv[0]]; }).filter(Boolean), out = {};
+  for (var i = 0; i < ss.length; i++) for (var j = i + 1; j < ss.length; j++) {
+    var a = ss[i], b = ss[j];
+    var mezzo = !a.da_assegnare && !b.da_assegnare && chiaveMezzo(a) !== "n:" && chiaveMezzo(a) === chiaveMezzo(b);
+    var autista = !!a.autista && a.autista === b.autista;
+    if ((mezzo || autista) && a.inizio < b.fine && b.inizio < a.fine) { out[a.id] = true; out[b.id] = true; }
+  }
+  return out;
+}
 function riassunto(s) {
   var t = s.tappe.filter(function (x) { return !x.vuoto; });
   var cli = t.map(function (x) { return x.cliente; }).filter(Boolean);
@@ -225,7 +240,8 @@ function disegna() {
     for (var k = 0; k < 7; k++) {
       var x = piu(w, k), xi = iso(x), g = perGiorno[xi];
       if (!g) { h += '<div class="g fuori"><span class="n">' + x.getDate() + "</span></div>"; continue; }
-      var pz = g.servizi.map(function (sv) { var s = perId[sv[0]]; return s ? '<span class="pz" style="background:' + colore(s) +
+      var sov = sovrapposti(g);
+      var pz = g.servizi.map(function (sv) { var s = perId[sv[0]]; return s ? '<span class="pz' + (sov[s.id] ? " sovr" : "") + '" style="background:' + colore(s) +
         ";color:" + testoSu(colore(s)) + '">' + e(sv[1].slice(0, 5)) + " " + e(riassunto(s)) + "</span>" : ""; });
       var vedi = pz.slice(0, 3).join("") + (pz.length > 3 ? '<span class="piu">+' + (pz.length - 3) + " altri</span>" : "");
       h += '<button type="button" class="g' + (xi === oi ? " oggi" : "") + '" data-g="' + xi + '" aria-label="' +
@@ -290,11 +306,12 @@ function disegnaGiorno(gi, scorri) {
   var righe = ""; for (var r = da; r <= a; r += 60) righe += '<div class="riga-ora" style="top:' + ((r - da) / 60 * PX) + 'px"></div>';
   var adesso = new Date(), mAdesso = adesso.getHours() * 60 + adesso.getMinutes();
   var linea = gi === oi && mAdesso >= da && mAdesso <= a ? '<div class="adesso" style="top:' + ((mAdesso - da) / 60 * PX) + 'px"></div>' : "";
+  var sov = sovrapposti(g);
   colonne.forEach(function (c) {
     h += '<div class="col" style="height:' + alto + 'px">' + righe + linea;
     servizi.filter(function (o) { return chiaveMezzo(o.s) === c.id; }).forEach(function (o) {
       var top = (o.i - da) / 60 * PX, alt = Math.max((o.f - o.i) / 60 * PX - 2, 22), col = colore(o.s);
-      h += '<div class="blocco' + (o.s.da_confermare ? " dc" : "") + '" role="button" tabindex="0" data-s="' + o.s.id + '" style="top:' + top +
+      h += '<div class="blocco' + (o.s.da_confermare ? " dc" : "") + (sov[o.s.id] ? " sovr" : "") + '" role="button" tabindex="0" data-s="' + o.s.id + '" style="top:' + top +
         "px;height:" + alt + "px;background:" + col + ";color:" + testoSu(col) + '"><b>' + e(o.orario) + "</b>" +
         e(o.s.autista || "senza autista") + "<br>" + e(riassunto(o.s)) + "</div>";
     });
@@ -302,6 +319,7 @@ function disegnaGiorno(gi, scorri) {
   });
   h += "</div></div><div class=\"sotto\">";
   if (!servizi.length) h += "<p>Nessun servizio.</p>";
+  if (Object.keys(sov).length) h += '<p class="err">Lampeggia: servizio che si sovrappone a un altro (stesso mezzo o stesso autista).</p>';
   [["Mezzi fermi", g.fermi], ["Mezzi senza servizio", g.senza_servizio], ["Autisti assenti", g.assenti]].forEach(function (rr) {
     if (rr[1].length) h += "<p>" + rr[0] + ": " + e(rr[1].join(", ")) + "</p>";
   });
