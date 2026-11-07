@@ -80,6 +80,10 @@ main{max-width:1100px;margin:0 auto;padding:0 16px 40px}
 @media (prefers-reduced-motion:reduce){.sovr{animation:none}}
 .adesso{position:absolute;left:0;right:0;border-top:2px solid var(--ro);z-index:1}
 .sotto p{margin:6px 0;color:var(--deb);font-size:14px}
+/* l'elenco dei servizi sotto la griglia: si vedono tutti anche se la griglia ne mostra solo una parte (7/11) */
+.elenco h3{font-size:15px;margin:14px 0 4px}
+.elenco button{display:block;width:100%;text-align:left;background:var(--sc);border:1px solid var(--li);border-left-width:8px;
+  border-radius:8px;padding:8px 10px;margin:6px 0;font-size:15px;line-height:1.3;cursor:pointer}
 /* la scheda del servizio */
 #velo{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20;display:none;align-items:flex-end;justify-content:center}
 #velo.su{display:flex}
@@ -319,6 +323,13 @@ function disegnaGiorno(gi, scorri) {
   });
   h += "</div></div><div class=\"sotto\">";
   if (!servizi.length) h += "<p>Nessun servizio.</p>";
+  else {
+    h += '<div class="elenco"><h3>Tutti i servizi del giorno</h3>' + servizi.slice().sort(function (p, q) { return p.i - q.i; }).map(function (o) {
+      return '<button type="button" class="' + (sov[o.s.id] ? "sovr" : "") + '" data-s="' + o.s.id + '" data-o="' + e(o.orario) +
+        '" style="border-left-color:' + colore(o.s) + '"><b>' + e(o.orario) + "</b> · " + e(o.s.da_assegnare ? "da assegnare" : o.s.mezzo) +
+        " · " + e(o.s.autista || "senza autista") + (riassunto(o.s) ? "<br>" + e(riassunto(o.s)) : "") + "</button>";
+    }).join("") + "</div>";
+  }
   if (Object.keys(sov).length) h += '<p class="err">Lampeggia: servizio che si sovrappone a un altro (stesso mezzo o stesso autista).</p>';
   [["Mezzi fermi", g.fermi], ["Mezzi senza servizio", g.senza_servizio], ["Autisti assenti", g.assenti]].forEach(function (rr) {
     if (rr[1].length) h += "<p>" + rr[0] + ": " + e(rr[1].join(", ")) + "</p>";
@@ -331,6 +342,9 @@ function disegnaGiorno(gi, scorri) {
   Array.prototype.forEach.call(document.querySelectorAll(".blocco"), function (b) {
     b.onclick = function () { apriScheda(Number(b.getAttribute("data-s")), b.querySelector("b").textContent); };
     b.onkeydown = function (ev) { if (ev.key === "Enter") b.onclick(); };
+  });
+  Array.prototype.forEach.call(document.querySelectorAll(".elenco button"), function (b) {
+    b.onclick = function () { apriScheda(Number(b.getAttribute("data-s")), b.getAttribute("data-o")); };
   });
   // si parte dalla prima ora con un servizio (o da adesso, se è oggi)
   // si parte da adesso (se è oggi) o dal primo servizio del giorno; la griglia scorre dentro il suo riquadro
