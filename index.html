@@ -30,6 +30,7 @@ header{position:sticky;top:0;z-index:5;background:var(--sf);border-bottom:1px so
   padding:8px 16px calc(8px);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 header h1{font-size:18px;margin:0;flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 header .deb{flex-basis:100%;order:3}
+@media (max-width:440px){header .b{padding:8px 9px;font-size:13px}header h1{font-size:16px}}  /* 8/11: tre pulsanti in una riga */
 main{max-width:1100px;margin:0 auto;padding:0 16px 40px}
 /* l'ingresso */
 #porta{max-width:420px;margin:40px auto;text-align:center}
@@ -97,11 +98,36 @@ main{max-width:1100px;margin:0 auto;padding:0 16px 40px}
 .tel{display:inline-block;margin-top:6px;color:var(--ve);font-weight:800;text-decoration:none;font-size:17px}
 .prezzo{margin-top:12px;font-weight:800;font-size:16px}
 .nascosto{display:none!important}
+/* PER MEZZO / PER AUTISTA (8/11/2026, Isa: «come nel programma va visto sia lato VAN che lato AUTISTA») */
+.vista{display:inline-flex;border:1px solid var(--li);border-radius:8px;overflow:hidden;margin:8px 0}
+.vista button{border:0;background:transparent;padding:7px 12px;font-size:13px;font-weight:700;cursor:pointer;color:var(--deb)}
+.vista button.su{background:var(--ac);color:#fff}
+.col.assente{background:repeating-linear-gradient(135deg,transparent 0 8px,var(--ora) 8px 10px)}
+.col-testa .ass{color:var(--ro);font-size:11px;font-weight:700}
+/* i CONTI (8/11/2026, Isa: «così il boss vede anche da fuori dare e avere e conti e tutto quello che riguarda i soldi») */
+.riquadri{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0}
+@media (min-width:700px){.riquadri{grid-template-columns:repeat(4,1fr)}}
+.rq{background:var(--sc);border:1px solid var(--li);border-radius:10px;padding:8px 10px}
+.rq .t{font-size:12px;color:var(--deb)}
+.rq .v{font-size:18px;font-weight:800;margin-top:2px}
+.rq .v.ro{color:var(--ro)}
+.tab-fuori{overflow-x:auto;border:1px solid var(--li);border-radius:10px;background:var(--sc)}
+table.tab{border-collapse:collapse;font-size:13px;min-width:100%}
+table.tab th,table.tab td{padding:6px 8px;border-bottom:1px solid var(--li);white-space:nowrap;text-align:right}
+table.tab th:first-child,table.tab td:first-child{text-align:left}
+table.tab td.testo{text-align:left;white-space:normal;min-width:180px}
+.conti h3{font-size:15px;margin:16px 0 6px}
+.riga-aut{display:flex;justify-content:space-between;gap:8px;width:100%;text-align:left;background:var(--sc);border:1px solid var(--li);
+  border-radius:8px;padding:9px 10px;margin:6px 0;font-size:15px;cursor:pointer}
+.riga-aut .s{font-weight:800}
+.ro{color:var(--ro)}
+.soldi{margin-top:12px;padding-top:8px;border-top:1px solid var(--li)}
 </style>
 </head>
 <body>
 <header>
   <h1 id="titolo">M Gest</h1>
+  <button class="b gr nascosto" id="conti" type="button">CONTI</button>
   <button class="b nascosto" id="agg" type="button">AGGIORNA</button>
   <button class="b gr nascosto" id="esci" type="button">ESCI</button>
   <div class="deb" id="sotto">solo da guardare</div>
@@ -122,6 +148,8 @@ main{max-width:1100px;margin:0 auto;padding:0 16px 40px}
 "use strict";
 var CHIAVE_G = "mgest_gettone", CHIAVE_S = "mgest_script", OGNI = 10 * 60 * 1000;
 var pinMem = "", dati = null, perId = {}, giornoAperto = null, timer = null;
+var contiAperti = false, pc = 0;                     // i CONTI aperti, e quale periodo (0 = questo mese)
+var perAutista = leggi("mgest_vista") === "autista";  // PER MEZZO (di partenza) o PER AUTISTA, ricordato sul telefono
 function $(i) { return document.getElementById(i); }
 function e(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
   return {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]; }); }
@@ -148,7 +176,7 @@ function chiedi(corpo) {
 // ── l'ingresso ──────────────────────────────────────────────────────────────────────────────────────────────
 function mostraPorta(msg) {
   $("carica").classList.add("nascosto"); $("vista").innerHTML = ""; chiudiScheda(true);
-  $("agg").classList.add("nascosto"); $("esci").classList.add("nascosto");
+  $("agg").classList.add("nascosto"); $("esci").classList.add("nascosto"); $("conti").classList.add("nascosto");
   $("porta").classList.remove("nascosto"); $("msg").textContent = msg || ""; $("pin").focus();
 }
 function risposta(r) {
@@ -158,6 +186,8 @@ function risposta(r) {
   dati.servizi.forEach(function (s) { perId[s.id] = s; });
   $("porta").classList.add("nascosto"); $("carica").classList.add("nascosto");
   $("agg").classList.remove("nascosto"); $("esci").classList.remove("nascosto");
+  $("conti").classList.toggle("nascosto", !dati.conti);           // dati di un M Gest più vecchio: niente CONTI
+  if (!dati.conti) contiAperti = false;
   $("titolo").textContent = dati.ditta || "M Gest";
   $("sotto").textContent = "aggiornata alle " + dati.aggiornata + " · solo da guardare";
   disegna();
@@ -179,7 +209,7 @@ $("entra").onclick = function () {
 $("pin").onkeydown = function (ev) { if (ev.key === "Enter") $("entra").onclick(); };
 $("agg").onclick = function () { avviso("Aggiorno…"); aggiorna(); };
 $("esci").onclick = function () {
-  var g = leggi(CHIAVE_G); scrivi(CHIAVE_G, ""); pinMem = ""; dati = null; giornoAperto = null;
+  var g = leggi(CHIAVE_G); scrivi(CHIAVE_G, ""); pinMem = ""; dati = null; giornoAperto = null; contiAperti = false;
   if (g) chiedi({azione: "esci", gettone: g}).catch(function () {});
   history.replaceState({}, "", location.pathname + location.search + location.hash);
   mostraPorta("Uscito.");
@@ -194,13 +224,34 @@ function iso(x) { return x.getFullYear() + "-" + ("0" + (x.getMonth() + 1)).slic
 function piu(x, n) { var y = new Date(x.getTime()); y.setDate(y.getDate() + n); return y; }
 function oggiIso() { return iso(new Date()); }
 function minuti(t) { return Number(t.slice(11, 13)) * 60 + Number(t.slice(14, 16)); }
-function euro(v) { return Number(v).toLocaleString("it-IT", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " €"; }
+function euro(v) {        // «2.070,00 €» come nel programma (8/11: in italiano 4 cifre di solito non hanno il punto)
+  return Number(v).toLocaleString("it-IT", {minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: "always"}) + " €";
+}
 function testoSu(c) {
   var m = /^#?([0-9a-f]{6})$/i.exec(c || ""); if (!m) return "#000";
   var n = parseInt(m[1], 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255;
   return (0.299 * r + 0.587 * g + 0.114 * b) > 150 ? "#000" : "#fff";
 }
 function colore(s) { return /^#[0-9a-f]{6}$/i.test(s.colore || "") ? s.colore : "#FFFFFF"; }
+/** Il colore del servizio come nel planner: PER MEZZO quello dell'autista, PER AUTISTA quello del mezzo. */
+function coloreVista(s) {
+  if (!perAutista) return colore(s);
+  return /^#[0-9a-f]{6}$/i.test(s.colore_mezzo || "") ? s.colore_mezzo : "#FFFFFF";
+}
+function chiaveAutista(s) { return s.autista_id != null ? s.autista_id : (s.autista ? "n:" + s.autista : "da"); }
+/** I due pulsanti PER MEZZO / PER AUTISTA (in cima al calendario e al giorno). */
+function barraVista() {
+  return '<div class="vista" role="group" aria-label="Vista"><button type="button" data-v="mezzo"' + (perAutista ? "" : ' class="su"') +
+    '>PER MEZZO</button><button type="button" data-v="autista"' + (perAutista ? ' class="su"' : "") + ">PER AUTISTA</button></div>";
+}
+function legaVista() {
+  Array.prototype.forEach.call(document.querySelectorAll(".vista button"), function (b) {
+    b.onclick = function () {
+      perAutista = b.getAttribute("data-v") === "autista"; scrivi("mgest_vista", perAutista ? "autista" : "");
+      if (giornoAperto) disegnaGiorno(giornoAperto, true); else disegna();
+    };
+  });
+}
 function chiaveMezzo(s) { return s.mezzo_id != null ? s.mezzo_id : "n:" + (s.mezzo || ""); }   // dati vecchi: senza mezzo_id
 /** I servizi del giorno che si sovrappongono a un altro: stesso mezzo (non «da assegnare») o stesso autista. */
 function sovrapposti(g) {
@@ -222,6 +273,7 @@ function riassunto(s) {
 // ── il calendario: settimane che scorrono, si apre su oggi ──────────────────────────────────────────────────
 function disegna() {
   if (!dati) return;
+  if (contiAperti) return disegnaConti();
   if (giornoAperto) return disegnaGiorno(giornoAperto, false);
   var perGiorno = {};
   dati.giorni.forEach(function (g) { perGiorno[g.giorno] = g; });
@@ -234,6 +286,7 @@ function disegna() {
       (urg ? ' <span class="err">· ' + urg + ' urgenti</span>' : "") + '</summary>' +
       dati.avvisi.map(function (a) { return '<p class="' + (a.urgente ? "err" : "") + '">' + e(a.testo) + "</p>"; }).join("") + "</details>";
   }
+  h += barraVista();
   h += '<div class="sett-testa"><div>lun</div><div>mar</div><div>mer</div><div>gio</div><div>ven</div><div>sab</div><div>dom</div></div>';
   var meseVisto = -1;
   for (var w = inizio; w <= ultimo; w = piu(w, 7)) {
@@ -245,8 +298,8 @@ function disegna() {
       var x = piu(w, k), xi = iso(x), g = perGiorno[xi];
       if (!g) { h += '<div class="g fuori"><span class="n">' + x.getDate() + "</span></div>"; continue; }
       var sov = sovrapposti(g);
-      var pz = g.servizi.map(function (sv) { var s = perId[sv[0]]; return s ? '<span class="pz' + (sov[s.id] ? " sovr" : "") + '" style="background:' + colore(s) +
-        ";color:" + testoSu(colore(s)) + '">' + e(sv[1].slice(0, 5)) + " " + e(riassunto(s)) + "</span>" : ""; });
+      var pz = g.servizi.map(function (sv) { var s = perId[sv[0]]; return s ? '<span class="pz' + (sov[s.id] ? " sovr" : "") + '" style="background:' + coloreVista(s) +
+        ";color:" + testoSu(coloreVista(s)) + '">' + e(sv[1].slice(0, 5)) + " " + e(riassunto(s)) + "</span>" : ""; });
       var vedi = pz.slice(0, 3).join("") + (pz.length > 3 ? '<span class="piu">+' + (pz.length - 3) + " altri</span>" : "");
       h += '<button type="button" class="g' + (xi === oi ? " oggi" : "") + '" data-g="' + xi + '" aria-label="' +
         e(GGL[x.getDay()] + " " + x.getDate() + " " + MM[x.getMonth()] + ", " + g.servizi.length + " servizi") + '">' +
@@ -255,6 +308,7 @@ function disegna() {
     h += "</div>";
   }
   $("vista").innerHTML = h;
+  legaVista();
   Array.prototype.forEach.call(document.querySelectorAll(".g[data-g]"), function (b) {
     b.onclick = function () { apriGiorno(b.getAttribute("data-g")); };
   });
@@ -283,14 +337,29 @@ function disegnaGiorno(gi, scorri) {
     '<button class="b gr" type="button" id="prima" style="margin-left:auto"' + (prima ? "" : " disabled") + ' aria-label="giorno prima">◀</button>' +
     '<button class="b gr" type="button" id="dopo"' + (dopo ? "" : " disabled") + ' aria-label="giorno dopo">▶</button></div>' +
     '<div class="giorno-testa"><h2>' + GGL[x.getDay()] + " " + x.getDate() + " " + MM[x.getMonth()] + (q ? "<small>" + q + "</small>" : "") + "</h2></div>";
-  // le colonne: i mezzi del programma, più «da assegnare» se serve. Se i dati vengono da un M Gest più vecchio (senza
-  // l'elenco dei mezzi: 7/11, il giorno non si apriva), le colonne si fanno coi mezzi dei servizi.
-  var colonne = (dati.mezzi || []).map(function (m) { return {id: m.id, nome: m.nome, sotto: m.targa}; });
+  h += barraVista();
+  // le colonne PER MEZZO: i mezzi del programma, più «da assegnare» se serve. Se i dati vengono da un M Gest più vecchio
+  // (senza l'elenco dei mezzi: 7/11, il giorno non si apriva), le colonne si fanno coi mezzi dei servizi.
+  // PER AUTISTA (8/11): gli autisti in servizio (tratteggiati se assenti quel giorno), quelli tolti che hanno servizi, e
+  // «Da assegnare» per i servizi senza autista; il colore è quello del mezzo, col nome del mezzo in testa.
   var servizi = g.servizi.map(function (sv) { return {s: perId[sv[0]], orario: sv[1]}; }).filter(function (o) { return o.s; });
+  var chiaveCol = perAutista ? chiaveAutista : chiaveMezzo, colonne;
+  var g0 = gi + " 00:00", g1 = iso(piu(x, 1)) + " 00:00";
+  if (perAutista) {
+    colonne = (dati.autisti || []).map(function (au) {
+      var ass = (au.assenze || []).filter(function (v) { return v[0] < g1 && v[1] > g0; })[0];
+      return {id: au.id != null ? au.id : "n:" + au.nome, nome: au.nome, sotto: ass ? "ASSENTE · " + ass[2] : "", assente: !!ass};
+    });
+  } else {
+    colonne = (dati.mezzi || []).map(function (m) { return {id: m.id, nome: m.nome, sotto: m.targa}; });
+  }
   var noti = {}; colonne.forEach(function (c) { noti[c.id] = true; });
   servizi.forEach(function (o) {
-    var k = chiaveMezzo(o.s);
-    if (!noti[k]) { noti[k] = true; colonne.push({id: k, nome: o.s.da_assegnare ? "Da assegnare" : (o.s.mezzo || "Da assegnare"), sotto: o.s.mezzo_id == null ? (o.s.targa || "") : ""}); }
+    var k = chiaveCol(o.s);
+    if (noti[k]) return;
+    noti[k] = true;
+    if (perAutista) colonne.push({id: k, nome: o.s.autista || "Da assegnare", sotto: ""});
+    else colonne.push({id: k, nome: o.s.da_assegnare ? "Da assegnare" : (o.s.mezzo || "Da assegnare"), sotto: o.s.mezzo_id == null ? (o.s.targa || "") : ""});
   });
   // le ore: dalle 6 alle 22, allargate se un servizio comincia prima o finisce dopo
   var da = 6 * 60, a = 22 * 60, giorno0 = gi + " 00:00", giorno1 = iso(piu(x, 1)) + " 00:00";
@@ -303,7 +372,7 @@ function disegnaGiorno(gi, scorri) {
   var PX = 46, alto = (a - da) / 60 * PX, larga = Math.max(92, Math.floor((Math.min(window.innerWidth, 1100) - 32 - 44 - 20) / Math.max(colonne.length, 1)));
   h += '<div class="griglia-fuori"><div class="griglia" style="grid-template-columns:44px repeat(' + colonne.length + "," + larga + 'px)">';
   h += '<div class="col-testa angolo"></div>' + colonne.map(function (c) {
-    return '<div class="col-testa">' + e(c.nome) + (c.sotto ? '<div class="deb">' + e(c.sotto) + "</div>" : "") + "</div>"; }).join("");
+    return '<div class="col-testa">' + e(c.nome) + (c.sotto ? '<div class="' + (c.assente ? "ass" : "deb") + '">' + e(c.sotto) + "</div>" : "") + "</div>"; }).join("");
   var ore = "";
   for (var m = da; m <= a; m += 60) ore += '<div style="top:' + ((m - da) / 60 * PX) + 'px">' + ("0" + (m / 60 % 24)).slice(-2) + ":00</div>";
   h += '<div class="ore" style="height:' + alto + 'px">' + ore + "</div>";
@@ -312,12 +381,13 @@ function disegnaGiorno(gi, scorri) {
   var linea = gi === oi && mAdesso >= da && mAdesso <= a ? '<div class="adesso" style="top:' + ((mAdesso - da) / 60 * PX) + 'px"></div>' : "";
   var sov = sovrapposti(g);
   colonne.forEach(function (c) {
-    h += '<div class="col" style="height:' + alto + 'px">' + righe + linea;
-    servizi.filter(function (o) { return chiaveMezzo(o.s) === c.id; }).forEach(function (o) {
-      var top = (o.i - da) / 60 * PX, alt = Math.max((o.f - o.i) / 60 * PX - 2, 22), col = colore(o.s);
-      h += '<div class="blocco' + (o.s.da_confermare ? " dc" : "") + (sov[o.s.id] ? " sovr" : "") + '" role="button" tabindex="0" data-s="' + o.s.id + '" style="top:' + top +
+    h += '<div class="col' + (c.assente ? " assente" : "") + '" style="height:' + alto + 'px">' + righe + linea;
+    servizi.filter(function (o) { return chiaveCol(o.s) === c.id; }).forEach(function (o) {
+      var top = (o.i - da) / 60 * PX, alt = Math.max((o.f - o.i) / 60 * PX - 2, 22), col = coloreVista(o.s);
+      var chi = perAutista ? (o.s.da_assegnare ? "da assegnare" : o.s.mezzo) : (o.s.autista || "senza autista");
+      h += '<div class="blocco' + (o.s.da_confermare ? " dc" : "") + (sov[o.s.id] ? " sovr" : "") + '" role="button" tabindex="0" data-s="' + o.s.id + '" data-o="' + e(o.orario) + '" style="top:' + top +
         "px;height:" + alt + "px;background:" + col + ";color:" + testoSu(col) + '"><b>' + e(o.orario) + "</b>" +
-        e(o.s.autista || "senza autista") + "<br>" + e(riassunto(o.s)) + "</div>";
+        e(chi) + "<br>" + e(riassunto(o.s)) + "</div>";
     });
     h += "</div>";
   });
@@ -326,7 +396,7 @@ function disegnaGiorno(gi, scorri) {
   else {
     h += '<div class="elenco"><h3>Tutti i servizi del giorno</h3>' + servizi.slice().sort(function (p, q) { return p.i - q.i; }).map(function (o) {
       return '<button type="button" class="' + (sov[o.s.id] ? "sovr" : "") + '" data-s="' + o.s.id + '" data-o="' + e(o.orario) +
-        '" style="border-left-color:' + colore(o.s) + '"><b>' + e(o.orario) + "</b> · " + e(o.s.da_assegnare ? "da assegnare" : o.s.mezzo) +
+        '" style="border-left-color:' + coloreVista(o.s) + '"><b>' + e(o.orario) + "</b> · " + e(o.s.da_assegnare ? "da assegnare" : o.s.mezzo) +
         " · " + e(o.s.autista || "senza autista") + (riassunto(o.s) ? "<br>" + e(riassunto(o.s)) : "") + "</button>";
     }).join("") + "</div>";
   }
@@ -336,11 +406,12 @@ function disegnaGiorno(gi, scorri) {
   });
   h += "</div>";
   $("vista").innerHTML = h;
+  legaVista();
   $("cal").onclick = function () { history.back(); };
   $("prima").onclick = function () { if (prima) { giornoAperto = prima; history.replaceState({g: prima}, ""); disegnaGiorno(prima, true); } };
   $("dopo").onclick = function () { if (dopo) { giornoAperto = dopo; history.replaceState({g: dopo}, ""); disegnaGiorno(dopo, true); } };
   Array.prototype.forEach.call(document.querySelectorAll(".blocco"), function (b) {
-    b.onclick = function () { apriScheda(Number(b.getAttribute("data-s")), b.querySelector("b").textContent); };
+    b.onclick = function () { apriScheda(Number(b.getAttribute("data-s")), b.getAttribute("data-o")); };
     b.onkeydown = function (ev) { if (ev.key === "Enter") b.onclick(); };
   });
   Array.prototype.forEach.call(document.querySelectorAll(".elenco button"), function (b) {
@@ -383,24 +454,128 @@ function apriScheda(id, orario) {
     h += "</div>";
   });
   if (s.prezzo != null) h += '<div class="prezzo">💶 Prezzo del servizio ' + euro(s.prezzo) + "</div>";
+  // i soldi (8/11/2026): come nei CONTI DEL VIAGGIO di M Gest
+  var so = s.soldi;
+  if (so) {
+    h += '<div class="soldi">';
+    if (so.pagato) h += "<div>✅ Pagato <b>" + euro(so.pagato) + "</b>" + (so.come ? " (" + e(so.come) + ")" : "") + "</div>";
+    else h += '<div class="deb">Nessun pagamento</div>';
+    if (!so.fatto) h += '<div class="deb">Servizio ancora da fare</div>';
+    else if (so.da_incassare == null) h += '<div class="ro">Manca il prezzo</div>';
+    else if (so.da_incassare > 0.004) h += '<div class="ro"><b>Da incassare ' + euro(so.da_incassare) + "</b></div>";
+    if (so.spese) h += "<div>Spese di viaggio " + euro(so.spese) + "</div>";
+    if (so.guadagno != null) h += "<div" + (so.guadagno < 0 ? ' class="ro"' : "") + ">Guadagno <b>" + (so.stimato ? "≈ " : "") + euro(so.guadagno) + "</b></div>";
+    h += "</div>";
+  }
   h += '<p style="margin-top:16px"><button class="b" type="button" id="chiudi">CHIUDI</button></p>';
   $("scheda").innerHTML = h;
   $("velo").classList.add("su");
-  history.pushState({g: giornoAperto, s: id}, "");
+  history.pushState({g: giornoAperto, c: contiAperti ? 1 : 0, s: id}, "");
   $("chiudi").onclick = function () { history.back(); };
 }
 function chiudiScheda(subito) { $("velo").classList.remove("su"); }
 $("velo").onclick = function (ev) { if (ev.target === $("velo")) history.back(); };
 document.addEventListener("keydown", function (ev) { if (ev.key === "Escape" && $("velo").classList.contains("su")) history.back(); });
 
+// ── i CONTI (8/11/2026, Isa): come CONTABILITÀ e CONTI AUTISTI di M Gest, solo da guardare ────────────────────
+$("conti").onclick = function () {
+  if (!dati || !dati.conti) return;
+  if (contiAperti) { window.scrollTo(0, 0); return; }
+  if (!giornoAperto) disegna.scroll = window.scrollY;
+  contiAperti = true; giornoAperto = null; history.pushState({c: 1}, "");
+  disegnaConti(); window.scrollTo(0, 0);
+};
+function eu(v) { return v == null ? "—" : euro(v); }
+function rq(titolo, valore, rosso) {
+  return '<div class="rq"><div class="t">' + titolo + '</div><div class="v' + (rosso ? " ro" : "") + '">' + valore + "</div></div>";
+}
+function giornoIt(s) { return s ? s.slice(8, 10) + "/" + s.slice(5, 7) + "/" + s.slice(0, 4) : ""; }
+function disegnaConti() {
+  var c = dati.conti, p = c.periodi[pc] || c.periodi[0];
+  var h = '<div class="conti"><div class="giorno-testa"><button class="b gr" type="button" id="cal">◀ CALENDARIO</button></div>';
+  h += '<div class="vista" role="group" aria-label="Periodo">' + c.periodi.map(function (x, i) {
+    return '<button type="button" data-p="' + i + '"' + (x === p ? ' class="su"' : "") + ">" + e(x.nome) + "</button>"; }).join("") + "</div>";
+  h += '<p class="deb">Dal ' + giornoIt(p.da) + " al " + giornoIt(p.a) + ". Conti interni, come in CONTABILITÀ di M Gest: non è la contabilità fiscale.</p>";
+  h += '<div class="riquadri">' +
+    rq("Contanti", eu(p.contanti[0]) + " <small>(" + p.contanti[1] + ")</small>") +
+    rq("POS", eu(p.pos[0]) + " <small>(" + p.pos[1] + ")</small>") +
+    rq("Da incassare", eu(p.da_incassare[0]) + " <small>(" + p.da_incassare[1] + " serv.)</small>", p.da_incassare[0] > 0.004) +
+    rq("Servizi ancora da fare" + (p.da_fare[2] ? " · acconti " + eu(p.da_fare[2]) : ""), p.da_fare[0] + " serv. · " + eu(p.da_fare[1])) +
+    rq("Spese di viaggio", eu(p.spese)) +
+    rq("Guadagno" + (p.senza_prezzo ? " (+" + p.senza_prezzo + " senza prezzo)" : ""), (p.stimato ? "≈ " : "") + eu(p.guadagno), p.guadagno < 0) +
+    (p.generali ? rq("Multe e danni della ditta (senza viaggio)", eu(p.generali)) : "") +
+    (p.hotel && p.hotel[1] ? rq("In conto hotel", eu(p.hotel[0]) + " <small>(" + p.hotel[1] + ")</small>") : "") + "</div>";
+  if (p.per_van.length) {
+    h += "<h3>Per van — i servizi già finiti</h3><div class=\"tab-fuori\"><table class=\"tab\"><tr><th>Mezzo</th><th>Servizi</th><th>Km</th>" +
+      "<th>Prezzi €</th><th>Incassato €</th><th>Da incassare €</th><th>Carburante €</th><th>Spese €</th><th>€ per km</th></tr>" +
+      p.per_van.map(function (v) {
+        return "<tr><td>" + e(v.mezzo) + "</td><td>" + v.servizi + "</td><td>" + v.km.toLocaleString("it-IT") + "</td><td>" + eu(v.prezzi) +
+          (v.senza_prezzo ? " (+" + v.senza_prezzo + " senza)" : "") + "</td><td>" + eu(v.incassato) + '</td><td class="' + (v.da_incassare > 0.004 ? "ro" : "") +
+          '">' + eu(v.da_incassare) + "</td><td>" + eu(v.carburante) + "</td><td>" + eu(v.spese) + "</td><td>" + eu(v.ekm) + "</td></tr>";
+      }).join("") + "</table></div>";
+  }
+  h += "<h3>Da incassare — servizi già finiti</h3>";
+  if (!p.elenco_da_incassare.length) h += '<p class="deb">Niente da incassare in questo periodo.</p>';
+  else h += '<div class="elenco">' + p.elenco_da_incassare.map(function (x) {
+    return '<button type="button" data-s="' + x.id + '" data-o="' + e(x.orario) + '" style="border-left-color:var(--ro)"><b>' + giornoIt(x.giorno).slice(0, 5) + " " + e(x.orario) +
+      '</b> · <span class="ro"><b>' + eu(x.resta) + "</b></span><br>" + e(x.cliente || "—") + " · " + e(x.mezzo) + " · " + e(x.autista || "senza autista") +
+      '<br><span class="deb">prezzo ' + eu(x.prezzo) + " · pagato " + eu(x.pagato) + "</span></button>";
+  }).join("") + "</div>";
+  h += "<h3>Conti autisti — dare e avere, a oggi</h3>";
+  if (!c.autisti.length) h += '<p class="deb">Nessun autista.</p>';
+  else h += c.autisti.map(function (a, i) {
+    var sit = a.saldo > 0.004 ? "ti deve " + euro(a.saldo) : a.saldo < -0.004 ? "gli devi " + euro(-a.saldo) : "pari";
+    return '<button type="button" class="riga-aut" data-a="' + i + '"><span><b>' + e(a.nome) + '</b><br><span class="deb">dare ' + eu(a.dare) +
+      " · avere " + eu(a.avere) + '</span></span><span class="s' + (a.saldo > 0.004 ? " ro" : "") + '">' + sit + "</span></button>";
+  }).join("");
+  h += '<p class="deb">Dare = quello che l\'autista deve alla ditta (i contanti presi dai clienti, multe e danni a suo carico). ' +
+    "Avere = quello che la ditta deve a lui (carburante e spese pagati coi suoi soldi). Tocca un autista per le sue righe.</p></div>";
+  $("vista").innerHTML = h;
+  $("cal").onclick = function () { history.back(); };
+  Array.prototype.forEach.call(document.querySelectorAll(".conti .vista button"), function (b) {
+    b.onclick = function () { pc = Number(b.getAttribute("data-p")); disegnaConti(); };
+  });
+  Array.prototype.forEach.call(document.querySelectorAll(".conti .elenco button"), function (b) {
+    b.onclick = function () {
+      var id = Number(b.getAttribute("data-s"));
+      if (perId[id]) apriScheda(id, b.getAttribute("data-o"));
+      else avviso("Questo servizio è fuori dai giorni della pagina: i dettagli sono in M Gest.");
+    };
+  });
+  Array.prototype.forEach.call(document.querySelectorAll(".riga-aut"), function (b) {
+    b.onclick = function () { apriEstratto(Number(b.getAttribute("data-a"))); };
+  });
+}
+function apriEstratto(i) {
+  var a = dati.conti.autisti[i]; if (!a) return;
+  var sit = a.saldo > 0.004 ? "ti deve " + euro(a.saldo) : a.saldo < -0.004 ? "gli devi " + euro(-a.saldo) : "pari";
+  var h = "<h3>👤 " + e(a.nome) + "</h3><div>Dare " + eu(a.dare) + " · Avere " + eu(a.avere) + "</div>" +
+    '<div class="prezzo' + (a.saldo > 0.004 ? " ro" : "") + '">Saldo: ' + sit + "</div>";
+  if (!a.righe.length) h += '<p class="deb">Nessuna riga.</p>';
+  else {
+    h += '<p class="deb">' + (a.righe_tutte > a.righe.length ? "Le ultime " + a.righe.length + " righe su " + a.righe_tutte + ", " : "") +
+      "la più nuova in cima.</p><div class=\"tab-fuori\"><table class=\"tab\"><tr><th>Data</th><th>Cosa</th><th>Dare €</th><th>Avere €</th><th>Saldo €</th></tr>" +
+      a.righe.map(function (r) {
+        return "<tr><td>" + giornoIt(r[0]).slice(0, 5) + '</td><td class="testo">' + e(r[3]) + "</td><td>" + (r[1] === "dare" ? euro(r[2]) : "") +
+          "</td><td>" + (r[1] === "avere" ? euro(r[2]) : "") + "</td><td>" + euro(r[4]) + "</td></tr>";
+      }).join("") + "</table></div>";
+  }
+  h += '<p style="margin-top:16px"><button class="b" type="button" id="chiudi">CHIUDI</button></p>';
+  $("scheda").innerHTML = h;
+  $("velo").classList.add("su");
+  history.pushState({c: 1, a: i}, "");
+  $("chiudi").onclick = function () { history.back(); };
+}
+
 // il tasto «indietro» del telefono: scheda → giorno → calendario
 window.addEventListener("popstate", function (ev) {
   var st = ev.state || {};
   chiudiScheda();
   if (!dati) return;
-  if (st.s) return;
-  if (st.g) { if (giornoAperto !== st.g) { giornoAperto = st.g; disegnaGiorno(st.g, true); } return; }
-  if (giornoAperto) { giornoAperto = null; disegna(); window.scrollTo(0, disegna.scroll || 0); }
+  if (st.s || st.a != null) return;
+  if (st.c) { if (!contiAperti) { contiAperti = true; giornoAperto = null; disegnaConti(); window.scrollTo(0, 0); } return; }
+  if (st.g) { if (giornoAperto !== st.g || contiAperti) { contiAperti = false; giornoAperto = st.g; disegnaGiorno(st.g, true); } return; }
+  if (giornoAperto || contiAperti) { giornoAperto = null; contiAperti = false; disegna(); window.scrollTo(0, disegna.scroll || 0); }
 });
 window.addEventListener("resize", function () { if (dati && giornoAperto) disegnaGiorno(giornoAperto, false); });
 
