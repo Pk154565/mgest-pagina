@@ -24,11 +24,11 @@ html,body{margin:0;background:var(--sf);color:var(--tx);font:16px/1.35 -apple-sy
 button{font:inherit;color:inherit}
 .b{border:0;border-radius:8px;padding:9px 13px;background:var(--ac);color:#fff;font-weight:700;font-size:14px;cursor:pointer}
 .b.gr{background:transparent;color:var(--tx);border:1px solid var(--li)}
-.deb{color:var(--deb);font-size:13px}
+.deb{color:var(--deb);font-size:14px}
 .err{color:var(--ro);font-weight:600}
 header{position:sticky;top:0;z-index:5;background:var(--sf);border-bottom:1px solid var(--li);
   padding:8px 16px calc(8px);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-header h1{font-size:18px;margin:0;flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header h1{font-size:18px;margin:0;flex:1 1 0;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 header .deb{flex-basis:100%;order:3}
 @media (max-width:440px){header .b{padding:8px 9px;font-size:13px}header h1{font-size:16px}}  /* 8/11: tre pulsanti in una riga */
 main{max-width:1100px;margin:0 auto;padding:0 16px 40px}
@@ -52,28 +52,28 @@ main{max-width:1100px;margin:0 auto;padding:0 16px 40px}
 .g.oggi{border:2px solid var(--ogg)}
 .g .n{font-weight:800;font-size:14px}
 .g.oggi .n{color:var(--ogg)}
-.g .pz{font-size:10px;line-height:1.25;border-radius:4px;padding:1px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+.g .pz{font-size:12px;line-height:1.25;border-radius:4px;padding:1px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   border:1px solid rgba(0,0,0,.15)}
-.g .piu{font-size:10px;color:var(--deb)}
-@media (min-width:700px){.g{min-height:104px}.g .pz{font-size:12px}}
+.g .piu{font-size:11px;color:var(--deb)}
+@media (min-width:700px){.g{min-height:104px}.g .pz{font-size:13px}}
 /* il giorno, come il planner */
 .giorno-testa{display:flex;align-items:center;gap:8px;margin:12px 0 8px}
 .giorno-testa h2{flex:1;font-size:17px;margin:0;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .giorno-testa small{color:var(--ogg);margin-left:6px}
 .griglia-fuori{overflow:auto;border:1px solid var(--li);border-radius:10px;background:var(--sc);
-  max-height:calc(100vh - var(--alto,58px) - 110px);max-height:calc(100dvh - var(--alto,58px) - 110px);-webkit-overflow-scrolling:touch}
+  max-height:calc(100vh - var(--alto,58px) - 165px);max-height:calc(100dvh - var(--alto,58px) - 165px);-webkit-overflow-scrolling:touch}
 .griglia{display:grid;position:relative;min-width:100%}
 .col-testa{position:sticky;top:0;z-index:3;background:var(--sc);border-bottom:1px solid var(--li);padding:6px 4px;
   font-weight:700;font-size:13px;text-align:center;line-height:1.2}
-.col-testa .deb{font-size:11px;font-weight:400}
+.col-testa .deb{font-size:12px;font-weight:400}
 .ore{position:sticky;left:0;z-index:2;background:var(--sc);border-right:1px solid var(--li)}
 .angolo{left:0;z-index:4}
-.ore div{position:absolute;right:4px;font-size:11px;color:var(--deb);transform:translateY(-50%)}
+.ore div{position:absolute;right:4px;font-size:12px;color:var(--deb);transform:translateY(-50%)}
 .col{position:relative;border-right:1px solid var(--li)}
 .riga-ora{position:absolute;left:0;right:0;border-top:1px solid var(--ora)}
-.blocco{position:absolute;left:3px;right:3px;border-radius:6px;padding:3px 5px;font-size:12px;line-height:1.2;overflow:hidden;
+.blocco{position:absolute;left:3px;right:3px;border-radius:6px;padding:3px 5px;font-size:13px;line-height:1.2;overflow:hidden;
   cursor:pointer;border:1px solid rgba(0,0,0,.25);box-shadow:0 1px 2px rgba(0,0,0,.15)}
-.blocco b{display:block;font-size:12px}
+.blocco b{display:block;font-size:13px}
 .blocco.dc{outline:2px dashed var(--gi);outline-offset:-2px}
 /* servizi che si sovrappongono (stesso mezzo o stesso autista): lampeggiano, come chiesto da Moreno il 7/11 */
 .sovr{box-shadow:0 0 0 3px var(--ro)!important;animation:lampeggia 1s steps(2,start) infinite}
@@ -98,21 +98,23 @@ main{max-width:1100px;margin:0 auto;padding:0 16px 40px}
 .tel{display:inline-block;margin-top:6px;color:var(--ve);font-weight:800;text-decoration:none;font-size:17px}
 .prezzo{margin-top:12px;font-weight:800;font-size:16px}
 .nascosto{display:none!important}
+/* 8/11/2026 (biglietto n. 2): i dati non sono di oggi */
+.vecchi{background:var(--gi);color:#000;font-weight:700;border-radius:8px;padding:6px 10px;font-size:15px;flex-basis:100%;order:4}
 /* PER MEZZO / PER AUTISTA (8/11/2026, Isa: «come nel programma va visto sia lato VAN che lato AUTISTA») */
 .vista{display:inline-flex;border:1px solid var(--li);border-radius:8px;overflow:hidden;margin:8px 0}
 .vista button{border:0;background:transparent;padding:7px 12px;font-size:13px;font-weight:700;cursor:pointer;color:var(--deb)}
 .vista button.su{background:var(--ac);color:#fff}
 .col.assente{background:repeating-linear-gradient(135deg,transparent 0 8px,var(--ora) 8px 10px)}
-.col-testa .ass{color:var(--ro);font-size:11px;font-weight:700}
+.col-testa .ass{color:var(--ro);font-size:12px;font-weight:700}
 /* i CONTI (8/11/2026, Isa: «così il boss vede anche da fuori dare e avere e conti e tutto quello che riguarda i soldi») */
 .riquadri{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0}
 @media (min-width:700px){.riquadri{grid-template-columns:repeat(4,1fr)}}
 .rq{background:var(--sc);border:1px solid var(--li);border-radius:10px;padding:8px 10px}
-.rq .t{font-size:12px;color:var(--deb)}
+.rq .t{font-size:13px;color:var(--deb)}
 .rq .v{font-size:18px;font-weight:800;margin-top:2px}
 .rq .v.ro{color:var(--ro)}
 .tab-fuori{overflow-x:auto;border:1px solid var(--li);border-radius:10px;background:var(--sc)}
-table.tab{border-collapse:collapse;font-size:13px;min-width:100%}
+table.tab{border-collapse:collapse;font-size:14px;min-width:100%}
 table.tab th,table.tab td{padding:6px 8px;border-bottom:1px solid var(--li);white-space:nowrap;text-align:right}
 table.tab th:first-child,table.tab td:first-child{text-align:left}
 table.tab td.testo{text-align:left;white-space:normal;min-width:180px}
@@ -122,15 +124,31 @@ table.tab td.testo{text-align:left;white-space:normal;min-width:180px}
 .riga-aut .s{font-weight:800}
 .ro{color:var(--ro)}
 .soldi{margin-top:12px;padding-top:8px;border-top:1px solid var(--li)}
+/* il MENU, la prima pagina (8/11/2026, Isa: «una pagina (la prima) con i pulsanti e premendo si entra nei vari reparti»,
+   come la pagina del telefono di Excalibur) */
+.menu{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;max-width:640px;margin:16px auto}
+@media (min-width:560px){.menu{grid-template-columns:repeat(3,1fr)}}
+.menu button{background:var(--sc);border:1px solid var(--li);border-radius:14px;padding:14px 8px;min-height:116px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center}
+.menu button.rosso{border:2px solid var(--ro)}
+.menu .em{font-size:32px;line-height:1.1}
+.menu .nm{font-weight:800;font-size:16px;color:var(--ac)}
+.menu .qt{font-size:13px;color:var(--deb)}
+.menu .qt.ro{color:var(--ro);font-weight:700}
+.avv h3,.cerca h3{font-size:15px;margin:16px 0 6px}
+.avv p.a{margin:6px 0;padding:8px 10px;background:var(--sc);border:1px solid var(--li);border-left:6px solid var(--li);border-radius:8px;font-size:15px}
+.avv p.a.urg{border-left-color:var(--ro)}
+.cerca input{width:100%;font-size:17px;padding:10px 12px;border:1px solid var(--li);border-radius:10px;background:var(--sc);color:var(--tx)}
 </style>
 </head>
 <body>
 <header>
+  <button class="b gr nascosto" id="amenu" type="button">◀ MENU</button>
   <h1 id="titolo">M Gest</h1>
-  <button class="b gr nascosto" id="conti" type="button">CONTI</button>
   <button class="b nascosto" id="agg" type="button">AGGIORNA</button>
   <button class="b gr nascosto" id="esci" type="button">ESCI</button>
   <div class="deb" id="sotto">solo da guardare</div>
+  <div id="vecchi" class="vecchi nascosto" role="status"></div>
 </header>
 <main>
   <div id="porta" class="nascosto">
@@ -148,13 +166,26 @@ table.tab td.testo{text-align:left;white-space:normal;min-width:180px}
 "use strict";
 var CHIAVE_G = "mgest_gettone", CHIAVE_S = "mgest_script", OGNI = 10 * 60 * 1000;
 var pinMem = "", dati = null, perId = {}, giornoAperto = null, timer = null;
-var contiAperti = false, pc = 0;                     // i CONTI aperti, e quale periodo (0 = questo mese)
+// 8/11/2026 (Isa): la prima pagina è il MENU; il reparto aperto: menu, cal (calendario), conti, avvisi, cerca.
+// Il giorno (giornoAperto) si apre dal calendario o dal menu (OGGI, DOMANI) e il suo «◀» torna lì.
+var reparto = "menu", pc = 0, cercaTesto = "", primoOrario = {};   // pc = il periodo dei CONTI (0 = questo mese)
+var NOMI = {menu: "MENU", cal: "CALENDARIO", conti: "CONTI", avvisi: "AVVISI", cerca: "CERCA"};
 var perAutista = leggi("mgest_vista") === "autista";  // PER MEZZO (di partenza) o PER AUTISTA, ricordato sul telefono
 function $(i) { return document.getElementById(i); }
 function e(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
   return {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]; }); }
 function leggi(k) { try { return localStorage.getItem(k) || ""; } catch (x) { return ""; } }
 function scrivi(k, v) { try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch (x) {} }
+// 9/11/2026: ogni passo nella cronologia ha il suo numero (p): «◀ MENU» in alto torna indietro di tutti i passi in un colpo,
+// così poi il tasto «indietro» del telefono dal menu esce, come prima
+function passi() { return (history.state && history.state.p) || 0; }
+function spingi(st) { st.p = passi() + 1; history.pushState(st, ""); }
+function rimpiazza(st) { st.p = passi(); history.replaceState(st, ""); }
+/** «◀ MENU» in alto: si vede dappertutto tranne che nel menu. */
+function pulsanteMenu() {
+  $("amenu").classList.toggle("nascosto", !dati || (reparto === "menu" && !giornoAperto));
+  document.documentElement.style.setProperty("--alto", document.querySelector("header").offsetHeight + "px");
+}
 
 // ── dove sta lo script: dopo il # del link (mai nel codice pubblico) ─────────────────────────────────────────────
 function indirizzo() {
@@ -176,7 +207,8 @@ function chiedi(corpo) {
 // ── l'ingresso ──────────────────────────────────────────────────────────────────────────────────────────────
 function mostraPorta(msg) {
   $("carica").classList.add("nascosto"); $("vista").innerHTML = ""; chiudiScheda(true);
-  $("agg").classList.add("nascosto"); $("esci").classList.add("nascosto"); $("conti").classList.add("nascosto");
+  $("agg").classList.add("nascosto"); $("esci").classList.add("nascosto"); $("amenu").classList.add("nascosto");
+  $("vecchi").classList.add("nascosto");
   $("porta").classList.remove("nascosto"); $("msg").textContent = msg || ""; $("pin").focus();
 }
 function risposta(r) {
@@ -184,13 +216,25 @@ function risposta(r) {
   if (r.gettone) scrivi(CHIAVE_G, r.gettone);
   dati = JSON.parse(r.dati); perId = {};
   dati.servizi.forEach(function (s) { perId[s.id] = s; });
+  primoOrario = {};                                               // l'orario del primo giorno, per le liste di AVVISI e CERCA
+  dati.giorni.forEach(function (g) { g.servizi.forEach(function (sv) { if (!(sv[0] in primoOrario)) primoOrario[sv[0]] = sv[1]; }); });
   $("porta").classList.add("nascosto"); $("carica").classList.add("nascosto");
   $("agg").classList.remove("nascosto"); $("esci").classList.remove("nascosto");
-  $("conti").classList.toggle("nascosto", !dati.conti);           // dati di un M Gest più vecchio: niente CONTI
-  if (!dati.conti) contiAperti = false;
+  if (!dati.conti && reparto === "conti") reparto = "menu";        // dati di un M Gest più vecchio: niente CONTI
   $("titolo").textContent = dati.ditta || "M Gest";
   $("sotto").textContent = "aggiornata alle " + dati.aggiornata + " · solo da guardare";
+  controllaGiorno();
   disegna();
+}
+/** 8/11/2026 (biglietto n. 2 di Moreno): se l'ultimo invio non è di oggi, una striscia gialla in cima. Si guarda solo il
+ *  GIORNO: M Gest manda solo quando i dati cambiano, quindi un'ora vecchia non vuol dire che qualcosa non va. */
+function controllaGiorno() {
+  var m = /^(\d{2})\/(\d{2})\/(\d{4})/.exec((dati && dati.aggiornata) || ""), v = $("vecchi");
+  var oggi = new Date(), dIt = ("0" + oggi.getDate()).slice(-2) + "/" + ("0" + (oggi.getMonth() + 1)).slice(-2) + "/" + oggi.getFullYear();
+  if (!m || m[0] === dIt) v.classList.add("nascosto");
+  else { v.textContent = "Dati del " + m[1] + "/" + m[2] + ": oggi M Gest non è stato aperto"; v.classList.remove("nascosto"); }
+  // la fascia in alto cambia altezza: la griglia del giorno e i giorni della settimana si sistemano sotto
+  document.documentElement.style.setProperty("--alto", document.querySelector("header").offsetHeight + "px");
 }
 function guasto(x) { if (dati) avviso("Non riesco ad aggiornare: " + (x && x.message || x)); else mostraPorta("Non riesco a parlare con Google: " + (x && x.message || x)); }
 function avviso(t) { $("sotto").textContent = t; }
@@ -208,8 +252,13 @@ $("entra").onclick = function () {
 };
 $("pin").onkeydown = function (ev) { if (ev.key === "Enter") $("entra").onclick(); };
 $("agg").onclick = function () { avviso("Aggiorno…"); aggiorna(); };
+$("amenu").onclick = function () {
+  var n = passi();
+  if (n > 0) return history.go(-n);                  // il «popstate» disegna il menu e chiude la scheda
+  reparto = "menu"; giornoAperto = null; chiudiScheda(); disegna(); window.scrollTo(0, 0);
+};
 $("esci").onclick = function () {
-  var g = leggi(CHIAVE_G); scrivi(CHIAVE_G, ""); pinMem = ""; dati = null; giornoAperto = null; contiAperti = false;
+  var g = leggi(CHIAVE_G); scrivi(CHIAVE_G, ""); pinMem = ""; dati = null; giornoAperto = null; reparto = "menu"; cercaTesto = "";
   if (g) chiedi({azione: "esci", gettone: g}).catch(function () {});
   history.replaceState({}, "", location.pathname + location.search + location.hash);
   mostraPorta("Uscito.");
@@ -273,19 +322,18 @@ function riassunto(s) {
 // ── il calendario: settimane che scorrono, si apre su oggi ──────────────────────────────────────────────────
 function disegna() {
   if (!dati) return;
-  if (contiAperti) return disegnaConti();
+  pulsanteMenu();
   if (giornoAperto) return disegnaGiorno(giornoAperto, false);
+  if (reparto === "conti" && dati.conti) return disegnaConti();
+  if (reparto === "avvisi") return disegnaAvvisi();
+  if (reparto === "cerca") return disegnaCerca();
+  if (reparto !== "cal") return disegnaMenu();
   var perGiorno = {};
   dati.giorni.forEach(function (g) { perGiorno[g.giorno] = g; });
   var primo = d(dati.giorni[0].giorno), ultimo = d(dati.giorni[dati.giorni.length - 1].giorno), oi = oggiIso();
   var inizio = piu(primo, -((primo.getDay() + 6) % 7));                   // lunedì della prima settimana
-  var h = "";
-  if (dati.avvisi && dati.avvisi.length) {
-    var urg = dati.avvisi.filter(function (a) { return a.urgente; }).length;
-    h += '<details id="avvisi"' + (urg ? " open" : "") + '><summary>Avvisi (' + dati.avvisi.length + ')' +
-      (urg ? ' <span class="err">· ' + urg + ' urgenti</span>' : "") + '</summary>' +
-      dati.avvisi.map(function (a) { return '<p class="' + (a.urgente ? "err" : "") + '">' + e(a.testo) + "</p>"; }).join("") + "</details>";
-  }
+  // 8/11/2026: gli avvisi (prima in cima al calendario) adesso hanno il loro reparto, AVVISI, nel menu
+  var h = '<div class="giorno-testa"><h2>Calendario</h2></div>';
   h += barraVista();
   h += '<div class="sett-testa"><div>lun</div><div>mar</div><div>mer</div><div>gio</div><div>ven</div><div>sab</div><div>dom</div></div>';
   var meseVisto = -1;
@@ -322,18 +370,27 @@ function disegna() {
 
 // ── il giorno, come il planner PER MEZZO: mezzi in colonna, ore in giù, colore dell'autista ────────────────
 function apriGiorno(g) {
-  giornoAperto = g; disegna.scroll = window.scrollY; history.pushState({g: g}, "");
+  if (reparto === "cal") disegna.scroll = window.scrollY;
+  giornoAperto = g; spingi({r: reparto, g: g});
   try { disegnaGiorno(g, true); }
-  catch (x) { giornoAperto = null; history.replaceState({}, ""); disegna(); avviso("Non riesco ad aprire il giorno: " + (x && x.message || x)); }
+  catch (x) { giornoAperto = null; rimpiazza({r: reparto}); disegna(); avviso("Non riesco ad aprire il giorno: " + (x && x.message || x)); }
 }
 function disegnaGiorno(gi, scorri) {
+  // 8/11/2026 (biglietto n. 2 di Moreno): ridisegnando lo STESSO giorno (aggiornamento ogni 10 minuti, telefono girato) la
+  // griglia e la pagina restano dove l'utente le aveva portate; solo aprendo un giorno (scorri = true) si va sul primo servizio
+  var prima0 = document.querySelector(".griglia-fuori");
+  var resta = !scorri && prima0 && disegnaGiorno.ultimo === gi ? {t: prima0.scrollTop, l: prima0.scrollLeft, y: window.scrollY} : null;
+  disegnaGiorno.ultimo = gi;
+  pulsanteMenu();
   var g = null;
   dati.giorni.forEach(function (x) { if (x.giorno === gi) g = x; });
   if (!g) { giornoAperto = null; return disegna(); }
   var x = d(gi), oi = oggiIso(), q = gi === oi ? "OGGI" : gi === iso(piu(d(oi), 1)) ? "DOMANI" : "";
   var i = dati.giorni.indexOf(g);
   var prima = i > 0 ? dati.giorni[i - 1].giorno : "", dopo = i < dati.giorni.length - 1 ? dati.giorni[i + 1].giorno : "";
-  var h = '<div class="giorno-testa"><button class="b gr" type="button" id="cal">◀ CALENDARIO</button>' +
+  // 9/11/2026 (Isa): aperto da OGGI/DOMANI (o da AVVISI), anche il pulsante per andare al CALENDARIO
+  var h = '<div class="giorno-testa">' + (reparto !== "menu" ? '<button class="b gr" type="button" id="cal">◀ ' + (NOMI[reparto] || "MENU") + "</button>" : "") +
+    (reparto !== "cal" ? '<button class="b gr" type="button" id="al-cal">📅 CALENDARIO</button>' : "") +
     '<button class="b gr" type="button" id="prima" style="margin-left:auto"' + (prima ? "" : " disabled") + ' aria-label="giorno prima">◀</button>' +
     '<button class="b gr" type="button" id="dopo"' + (dopo ? "" : " disabled") + ' aria-label="giorno dopo">▶</button></div>' +
     '<div class="giorno-testa"><h2>' + GGL[x.getDay()] + " " + x.getDate() + " " + MM[x.getMonth()] + (q ? "<small>" + q + "</small>" : "") + "</h2></div>";
@@ -407,9 +464,13 @@ function disegnaGiorno(gi, scorri) {
   h += "</div>";
   $("vista").innerHTML = h;
   legaVista();
-  $("cal").onclick = function () { history.back(); };
-  $("prima").onclick = function () { if (prima) { giornoAperto = prima; history.replaceState({g: prima}, ""); disegnaGiorno(prima, true); } };
-  $("dopo").onclick = function () { if (dopo) { giornoAperto = dopo; history.replaceState({g: dopo}, ""); disegnaGiorno(dopo, true); } };
+  if ($("cal")) $("cal").onclick = function () { history.back(); };
+  // al calendario al posto del giorno: «indietro» dal calendario torna poi al menu, come sempre
+  if ($("al-cal")) $("al-cal").onclick = function () {
+    reparto = "cal"; giornoAperto = null; disegna.fatto = false; rimpiazza({r: "cal"}); disegna(); pulsanteMenu();
+  };
+  $("prima").onclick = function () { if (prima) { giornoAperto = prima; rimpiazza({r: reparto, g: prima}); disegnaGiorno(prima, true); } };
+  $("dopo").onclick = function () { if (dopo) { giornoAperto = dopo; rimpiazza({r: reparto, g: dopo}); disegnaGiorno(dopo, true); } };
   Array.prototype.forEach.call(document.querySelectorAll(".blocco"), function (b) {
     b.onclick = function () { apriScheda(Number(b.getAttribute("data-s")), b.getAttribute("data-o")); };
     b.onkeydown = function (ev) { if (ev.key === "Enter") b.onclick(); };
@@ -430,6 +491,8 @@ function disegnaGiorno(gi, scorri) {
     fuori.scrollTop = Math.max(0, (primoMin - da) / 60 * PX - 20);
     var bl = primo && document.querySelector('.blocco[data-s="' + primo.s.id + '"]');
     if (bl) fuori.scrollLeft = Math.max(0, bl.parentElement.offsetLeft - 44);
+  } else if (fuori && resta) {
+    fuori.scrollTop = resta.t; fuori.scrollLeft = resta.l; window.scrollTo(0, resta.y);
   }
 }
 
@@ -470,21 +533,153 @@ function apriScheda(id, orario) {
   h += '<p style="margin-top:16px"><button class="b" type="button" id="chiudi">CHIUDI</button></p>';
   $("scheda").innerHTML = h;
   $("velo").classList.add("su");
-  history.pushState({g: giornoAperto, c: contiAperti ? 1 : 0, s: id}, "");
+  spingi({r: reparto, g: giornoAperto, s: id});
   $("chiudi").onclick = function () { history.back(); };
 }
 function chiudiScheda(subito) { $("velo").classList.remove("su"); }
 $("velo").onclick = function (ev) { if (ev.target === $("velo")) history.back(); };
 document.addEventListener("keydown", function (ev) { if (ev.key === "Escape" && $("velo").classList.contains("su")) history.back(); });
 
+// ── il MENU, la prima pagina (8/11/2026, Isa: «come c'è su excalibur online»): un pulsante per reparto ──────────
+function vai(r) {
+  if (!dati || (r === "conti" && !dati.conti)) return;
+  reparto = r; giornoAperto = null; disegna.fatto = false;      // il calendario riparte dalla settimana di oggi
+  spingi({r: r});
+  disegna();
+  if (r !== "cal") window.scrollTo(0, 0);
+  if (r === "cerca" && $("cerca-in")) $("cerca-in").focus();
+}
+function giornoDi(gi) { var g = null; dati.giorni.forEach(function (x) { if (x.giorno === gi) g = x; }); return g; }
+function urgenti() { return (dati.avvisi || []).filter(function (a) { return a.urgente; }).length; }
+/** I servizi dei prossimi 7 giorni ancora senza autista (non quelli già cominciati), dal primo. */
+function senzaAutista() {
+  var ora = new Date(), da = iso(ora) + " " + ("0" + ora.getHours()).slice(-2) + ":" + ("0" + ora.getMinutes()).slice(-2);
+  var a = iso(piu(ora, 8)) + " 00:00";
+  return dati.servizi.filter(function (s) { return !s.autista && s.inizio >= da && s.inizio < a; })
+    .sort(function (p, q) { return p.inizio < q.inizio ? -1 : p.inizio > q.inizio ? 1 : 0; });
+}
+/** 8/11/2026 (Isa: «si aggiungi»): i turni che si sovrappongono (stesso mezzo o stesso autista, come il lampeggio del giorno)
+ *  da oggi a 7 giorni: [{giorno, a, b, perche}], una volta sola per coppia (anche se i servizi durano più giorni). */
+function coppieSovrapposte() {
+  var oi = oggiIso(), fine = iso(piu(d(oi), 7)), viste = {}, out = [];
+  dati.giorni.forEach(function (g) {
+    if (g.giorno < oi || g.giorno > fine) return;
+    var ss = g.servizi.map(function (sv) { return perId[sv[0]]; }).filter(Boolean);
+    for (var i = 0; i < ss.length; i++) for (var j = i + 1; j < ss.length; j++) {
+      var a = ss[i], b = ss[j];
+      if (!(a.inizio < b.fine && b.inizio < a.fine)) continue;
+      var mezzo = !a.da_assegnare && !b.da_assegnare && chiaveMezzo(a) !== "n:" && chiaveMezzo(a) === chiaveMezzo(b);
+      var autista = !!a.autista && a.autista === b.autista;
+      if (!mezzo && !autista) continue;
+      if (a.inizio > b.inizio) { var t = a; a = b; b = t; }
+      var k = a.id + "-" + b.id; if (viste[k]) continue; viste[k] = true;
+      out.push({giorno: g.giorno, a: a, b: b, perche: [mezzo ? "stesso mezzo " + a.mezzo : "", autista ? "stesso autista " + a.autista : ""].filter(Boolean).join(" e ")});
+    }
+  });
+  return out;
+}
+function disegnaMenu() {
+  var oi = oggiIso(), dm = iso(piu(d(oi), 1));
+  function quanti(g) { var n = g ? g.servizi.length : null; return n == null ? "fuori dai giorni" : n === 0 ? "nessun servizio" : n === 1 ? "1 servizio" : n + " servizi"; }
+  var av = (dati.avvisi || []).length, urg = urgenti(), sa = senzaAutista().length, sv = coppieSovrapposte().length;
+  var righe = [];
+  if (av) righe.push(av + (av === 1 ? " avviso" : " avvisi") + (urg ? " · " + urg + (urg === 1 ? " urgente" : " urgenti") : ""));
+  if (sv) righe.push(sv + (sv === 1 ? " sovrapposto" : " sovrapposti"));
+  if (sa) righe.push(sa + " senza autista");
+  var qtAvv = righe.length ? righe.join("<br>") : "niente da sistemare";
+  urg = urg || sv;                                                // un turno sovrapposto è urgente come una scadenza passata
+  var g0 = dati.giorni[0].giorno, g1 = dati.giorni[dati.giorni.length - 1].giorno;
+  var p = [["oggi", "🚐", "OGGI", quanti(giornoDi(oi)), ""],
+           ["domani", "📆", "DOMANI", quanti(giornoDi(dm)), ""],
+           ["cal", "📅", "CALENDARIO", "dal " + giornoIt(g0).slice(0, 5) + " al " + giornoIt(g1).slice(0, 5), ""],
+           ["avvisi", "⚠️", "AVVISI", qtAvv, urg || sa ? "ro" : ""]];
+  if (dati.conti) p.push(["conti", "💶", "CONTI", "incassi, spese, autisti", ""]);
+  p.push(["cerca", "🔍", "CERCA", "cliente, telefono, posto", ""]);
+  $("vista").innerHTML = '<div class="menu">' + p.map(function (x) {
+    return '<button type="button" data-r="' + x[0] + '"' + (x[0] === "avvisi" && urg ? ' class="rosso"' : "") + '><span class="em" aria-hidden="true">' + x[1] +
+      '</span><span class="nm">' + x[2] + '</span><span class="qt' + (x[4] ? " " + x[4] : "") + '">' + x[3] + "</span></button>";
+  }).join("") + "</div>";
+  Array.prototype.forEach.call(document.querySelectorAll(".menu button"), function (b) {
+    b.onclick = function () {
+      var r = b.getAttribute("data-r");
+      if (r !== "oggi" && r !== "domani") return vai(r);
+      var gi = r === "oggi" ? oi : dm;
+      if (giornoDi(gi)) apriGiorno(gi); else avviso("Questo giorno non è nella pagina: i dati sono vecchi, apri M Gest.");
+    };
+  });
+}
+/** Una riga cliccabile di un servizio (AVVISI, CERCA): giorno e ora, mezzo, autista, cliente o percorso. */
+function rigaServizio(s, bordo) {
+  var o = primoOrario[s.id] || "", x = d(s.inizio);
+  return '<button type="button" data-s="' + s.id + '" data-o="' + e(o) + '" style="border-left-color:' + (bordo || coloreVista(s)) + '"><b>' +
+    GG[x.getDay()] + " " + giornoIt(s.inizio).slice(0, 5) + " " + e(o) + "</b> · " + e(s.da_assegnare ? "da assegnare" : s.mezzo) + " · " +
+    e(s.autista || "senza autista") + (riassunto(s) ? "<br>" + e(riassunto(s)) : "") + "</button>";
+}
+function legaRighe() {
+  Array.prototype.forEach.call(document.querySelectorAll("#vista .elenco button[data-s]"), function (b) {
+    b.onclick = function () { apriScheda(Number(b.getAttribute("data-s")), b.getAttribute("data-o")); };
+  });
+}
+
+// ── AVVISI: quelli di M Gest (scadenze, multe, ferie e fermi, da confermare, senza mezzo, senza km, richieste) e i
+// servizi dei prossimi 7 giorni ancora senza autista ─────────────────────────────────────────────────────────────
+function disegnaAvvisi() {
+  var av = (dati.avvisi || []).slice().sort(function (p, q) { return (q.urgente ? 1 : 0) - (p.urgente ? 1 : 0); }), sa = senzaAutista();
+  var h = '<div class="avv"><div class="giorno-testa"><h2>Avvisi</h2></div>';
+  h += "<h3>Da sistemare in M Gest" + (av.length ? " (" + av.length + ")" : "") + "</h3>";
+  h += av.length ? av.map(function (a) {
+    return '<p class="a' + (a.urgente ? " urg" : "") + '">' + (a.urgente ? '<b class="ro">URGENTE</b> · ' : "") + e(a.testo) + "</p>"; }).join("")
+    : '<p class="deb">Nessun avviso.</p>';
+  h += '<p class="deb">Scadenze di mezzi e autisti, multe, ferie e fermi, servizi da confermare o senza mezzo, richieste dei clienti: ' +
+    "come gli AVVISI di M Gest. Si segnano «fatto» o si rimandano solo in M Gest.</p>";
+  var cs = coppieSovrapposte();
+  h += "<h3>Turni sovrapposti — da oggi a 7 giorni" + (cs.length ? " (" + cs.length + ")" : "") + "</h3>";
+  h += cs.length ? '<div class="elenco">' + cs.map(function (c) {
+    var x = d(c.giorno), oa = primoOrario[c.a.id] || "", ob = primoOrario[c.b.id] || "";
+    return '<button type="button" class="sovr" data-g="' + c.giorno + '" style="border-left-color:var(--ro)"><b>' + GG[x.getDay()] + " " +
+      giornoIt(c.giorno).slice(0, 5) + "</b> · " + e(c.perche) + "<br>" + e(oa) + " " + e(riassunto(c.a)) + "<br>" + e(ob) + " " + e(riassunto(c.b)) + "</button>";
+  }).join("") + '</div><p class="deb">Tocca per aprire il giorno. Si sistemano in M Gest.</p>'
+    : '<p class="deb">Nessun turno sovrapposto.</p>';
+  h += "<h3>Senza autista — prossimi 7 giorni" + (sa.length ? " (" + sa.length + ")" : "") + "</h3>";
+  h += sa.length ? '<div class="elenco">' + sa.map(function (s) { return rigaServizio(s, "var(--ro)"); }).join("") + "</div>"
+    : '<p class="deb">Tutti i servizi dei prossimi 7 giorni hanno l\'autista.</p>';
+  $("vista").innerHTML = h + "</div>";
+  legaRighe();
+  Array.prototype.forEach.call(document.querySelectorAll(".avv .elenco button[data-g]"), function (b) {
+    b.onclick = function () { apriGiorno(b.getAttribute("data-g")); };
+  });
+}
+
+// ── CERCA: nei servizi della pagina, per cliente, telefono, posto, volo, mezzo, targa, autista, evento ──────────────
+function normale(t) { return String(t == null ? "" : t).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
+function disegnaCerca() {
+  if (!$("cerca-in")) {           // la casella si fa una volta sola: aggiornando i dati non si chiude la tastiera
+    var g0 = dati.giorni[0].giorno, g1 = dati.giorni[dati.giorni.length - 1].giorno;
+    $("vista").innerHTML = '<div class="cerca"><div class="giorno-testa"><h2>Cerca</h2></div>' +
+      '<input id="cerca-in" type="search" placeholder="Cliente, telefono, posto, volo…" autocomplete="off" aria-label="Cerca">' +
+      '<p class="deb">Nei servizi dal ' + giornoIt(g0) + " al " + giornoIt(g1) + '.</p><div id="trovati"></div></div>';
+    $("cerca-in").value = cercaTesto;
+    $("cerca-in").oninput = function () { cercaTesto = $("cerca-in").value; trova(); };
+  }
+  trova();
+}
+function trova() {
+  var out = $("trovati"); if (!out) return;
+  var q = normale(cercaTesto).trim(), cifre = q.replace(/[^0-9]/g, "");
+  if (q.length < 2) { out.innerHTML = '<p class="deb">Scrivi almeno 2 lettere.</p>'; return; }
+  var parole = q.split(/\s+/);
+  var ss = dati.servizi.filter(function (s) {
+    var testo = normale([s.mezzo, s.targa, s.autista, s.evento].concat(s.tappe.map(function (t) {
+      return [t.cliente, t.da, t.a, t.volo, t.telefono].join(" "); })).join(" "));
+    var tel = s.tappe.map(function (t) { return String(t.telefono || "").replace(/[^0-9]/g, ""); }).join(" ");
+    return parole.every(function (p) { return testo.indexOf(p) >= 0; }) || (cifre.length >= 4 && tel.indexOf(cifre) >= 0);
+  }).sort(function (p, q) { return p.inizio < q.inizio ? -1 : p.inizio > q.inizio ? 1 : 0; });
+  out.innerHTML = !ss.length ? '<p class="deb">Nessun servizio trovato.</p>' :
+    "<h3>" + (ss.length === 1 ? "1 servizio" : ss.length + " servizi") + '</h3><div class="elenco">' + ss.map(function (s) { return rigaServizio(s); }).join("") + "</div>";
+  legaRighe();
+}
+
 // ── i CONTI (8/11/2026, Isa): come CONTABILITÀ e CONTI AUTISTI di M Gest, solo da guardare ────────────────────
-$("conti").onclick = function () {
-  if (!dati || !dati.conti) return;
-  if (contiAperti) { window.scrollTo(0, 0); return; }
-  if (!giornoAperto) disegna.scroll = window.scrollY;
-  contiAperti = true; giornoAperto = null; history.pushState({c: 1}, "");
-  disegnaConti(); window.scrollTo(0, 0);
-};
 function eu(v) { return v == null ? "—" : euro(v); }
 function rq(titolo, valore, rosso) {
   return '<div class="rq"><div class="t">' + titolo + '</div><div class="v' + (rosso ? " ro" : "") + '">' + valore + "</div></div>";
@@ -492,7 +687,7 @@ function rq(titolo, valore, rosso) {
 function giornoIt(s) { return s ? s.slice(8, 10) + "/" + s.slice(5, 7) + "/" + s.slice(0, 4) : ""; }
 function disegnaConti() {
   var c = dati.conti, p = c.periodi[pc] || c.periodi[0];
-  var h = '<div class="conti"><div class="giorno-testa"><button class="b gr" type="button" id="cal">◀ CALENDARIO</button></div>';
+  var h = '<div class="conti"><div class="giorno-testa"><h2>Conti</h2></div>';
   h += '<div class="vista" role="group" aria-label="Periodo">' + c.periodi.map(function (x, i) {
     return '<button type="button" data-p="' + i + '"' + (x === p ? ' class="su"' : "") + ">" + e(x.nome) + "</button>"; }).join("") + "</div>";
   h += '<p class="deb">Dal ' + giornoIt(p.da) + " al " + giornoIt(p.a) + ". Conti interni, come in CONTABILITÀ di M Gest: non è la contabilità fiscale.</p>";
@@ -531,7 +726,6 @@ function disegnaConti() {
   h += '<p class="deb">Dare = quello che l\'autista deve alla ditta (i contanti presi dai clienti, multe e danni a suo carico). ' +
     "Avere = quello che la ditta deve a lui (carburante e spese pagati coi suoi soldi). Tocca un autista per le sue righe.</p></div>";
   $("vista").innerHTML = h;
-  $("cal").onclick = function () { history.back(); };
   Array.prototype.forEach.call(document.querySelectorAll(".conti .vista button"), function (b) {
     b.onclick = function () { pc = Number(b.getAttribute("data-p")); disegnaConti(); };
   });
@@ -563,21 +757,32 @@ function apriEstratto(i) {
   h += '<p style="margin-top:16px"><button class="b" type="button" id="chiudi">CHIUDI</button></p>';
   $("scheda").innerHTML = h;
   $("velo").classList.add("su");
-  history.pushState({c: 1, a: i}, "");
+  spingi({r: "conti", a: i});
   $("chiudi").onclick = function () { history.back(); };
 }
 
-// il tasto «indietro» del telefono: scheda → giorno → calendario
+// il tasto «indietro» del telefono: scheda → giorno → calendario (o il reparto da cui si è partiti) → menu
 window.addEventListener("popstate", function (ev) {
   var st = ev.state || {};
   chiudiScheda();
   if (!dati) return;
-  if (st.s || st.a != null) return;
-  if (st.c) { if (!contiAperti) { contiAperti = true; giornoAperto = null; disegnaConti(); window.scrollTo(0, 0); } return; }
-  if (st.g) { if (giornoAperto !== st.g || contiAperti) { contiAperti = false; giornoAperto = st.g; disegnaGiorno(st.g, true); } return; }
-  if (giornoAperto || contiAperti) { giornoAperto = null; contiAperti = false; disegna(); window.scrollTo(0, disegna.scroll || 0); }
+  if (st.s || st.a != null) return;                               // si chiude solo la scheda: sotto c'è già il posto giusto
+  var r = st.r || "menu", g = st.g || null;
+  if (r === reparto && g === giornoAperto) return;
+  var daGiorno = !!giornoAperto;
+  reparto = r; giornoAperto = g;
+  if (g) return disegnaGiorno(g, true);
+  disegna();
+  window.scrollTo(0, r === "cal" && daGiorno ? disegna.scroll || 0 : 0);   // dal giorno si torna dove si era nel calendario
 });
-window.addEventListener("resize", function () { if (dati && giornoAperto) disegnaGiorno(giornoAperto, false); });
+// 8/11/2026 (biglietto n. 2): si ridisegna solo se cambia la LARGHEZZA (telefono girato, finestra del PC). Su Android la barra
+// di Chrome che sparisce mentre si scorre cambia solo l'altezza: prima faceva tornare la griglia in cima.
+var larghezzaVista = window.innerWidth;
+window.addEventListener("resize", function () {
+  if (window.innerWidth === larghezzaVista) return;
+  larghezzaVista = window.innerWidth;
+  if (dati && giornoAperto) disegnaGiorno(giornoAperto, false);
+});
 
 // l'aggiornamento da solo ogni 10 minuti (e quando si torna sulla pagina dopo un po')
 var ultimoGiro = 0;
