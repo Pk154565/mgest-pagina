@@ -504,8 +504,11 @@ function apriScheda(id, orario) {
     "<div>" + (s.autista ? "👤 " + e(s.autista) : '<span class="chip">SENZA AUTISTA</span>') + (s.da_confermare ? ' <span class="chip">DA CONFERMARE</span>' : "") + "</div>" +
     (s.evento ? '<div class="deb">' + e(s.evento) + "</div>" : "");
   s.tappe.forEach(function (t) {
-    h += '<div class="tp"><div class="q">' + e(t.ora) + " · " + e(t.da) + " → " + e(t.a) + "</div>";
-    if (t.vuoto) { h += '<div class="deb">a vuoto</div></div>'; return; }
+    // 13/11/2026: «in attesa» = una tappa a vuoto che resta nello stesso posto (il mezzo aspetta lì): come in M Gest (in_attesa)
+    var norma = function (x) { return String(x || "").replace(/\s+/g, " ").replace(/^ | $/g, "").toLowerCase(); };
+    var attesa = t.vuoto && norma(t.da) !== "" && norma(t.da) === norma(t.a);
+    h += '<div class="tp"><div class="q">' + e(t.ora) + " · " + (attesa ? "in attesa a " + e(t.a) : e(t.da) + " → " + e(t.a)) + "</div>";
+    if (t.vuoto) { h += '<div class="deb">' + (attesa ? "in attesa: il mezzo aspetta lì" : "a vuoto") + '</div></div>'; return; }
     var info = [];
     if (t.cliente) info.push("<b>" + e(t.cliente) + "</b>");
     if (t.passeggeri) info.push(e(t.passeggeri) + " pax");
