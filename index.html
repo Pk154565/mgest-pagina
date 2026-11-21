@@ -139,6 +139,9 @@ table.tab td.testo{text-align:left;white-space:normal;min-width:180px}
 .avv p.a{margin:6px 0;padding:8px 10px;background:var(--sc);border:1px solid var(--li);border-left:6px solid var(--li);border-radius:8px;font-size:15px}
 .avv p.a.urg{border-left-color:var(--ro)}
 .cerca input{width:100%;font-size:17px;padding:10px 12px;border:1px solid var(--li);border-radius:10px;background:var(--sc);color:var(--tx)}
+/* POSIZIONI (20/11/2026, Moreno: «la possibilità per il capo di vedere la posizione dell'autista») */
+.rigapos{background:var(--sc);border:1px solid var(--li);border-left:6px solid var(--ac);border-radius:8px;padding:10px 12px;margin:8px 0;font-size:16px}
+.rigapos .b{display:inline-block;margin-top:8px;text-decoration:none}
 </style>
 </head>
 <body>
@@ -169,7 +172,7 @@ var pinMem = "", dati = null, perId = {}, giornoAperto = null, timer = null;
 // 8/11/2026 (Isa): la prima pagina è il MENU; il reparto aperto: menu, cal (calendario), conti, avvisi, cerca.
 // Il giorno (giornoAperto) si apre dal calendario o dal menu (OGGI, DOMANI) e il suo «◀» torna lì.
 var reparto = "menu", pc = 0, cercaTesto = "", primoOrario = {};   // pc = il periodo dei CONTI (0 = questo mese)
-var NOMI = {menu: "MENU", cal: "CALENDARIO", conti: "CONTI", avvisi: "AVVISI", cerca: "CERCA"};
+var NOMI = {menu: "MENU", cal: "CALENDARIO", conti: "CONTI", avvisi: "AVVISI", cerca: "CERCA", posizioni: "POSIZIONI"};
 var perAutista = leggi("mgest_vista") === "autista";  // PER MEZZO (di partenza) o PER AUTISTA, ricordato sul telefono
 function $(i) { return document.getElementById(i); }
 function e(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
@@ -221,6 +224,7 @@ function risposta(r) {
   $("porta").classList.add("nascosto"); $("carica").classList.add("nascosto");
   $("agg").classList.remove("nascosto"); $("esci").classList.remove("nascosto");
   if (!dati.conti && reparto === "conti") reparto = "menu";        // dati di un M Gest più vecchio: niente CONTI
+  if (!dati.posizioni && reparto === "posizioni") reparto = "menu"; // … e niente POSIZIONI (prima della 0.29)
   $("titolo").textContent = dati.ditta || "M Gest";
   $("sotto").textContent = "aggiornata alle " + dati.aggiornata + " · solo da guardare";
   controllaGiorno();
@@ -327,6 +331,7 @@ function disegna() {
   if (reparto === "conti" && dati.conti) return disegnaConti();
   if (reparto === "avvisi") return disegnaAvvisi();
   if (reparto === "cerca") return disegnaCerca();
+  if (reparto === "posizioni" && dati.posizioni) return disegnaPosizioni();
   if (reparto !== "cal") return disegnaMenu();
   var perGiorno = {};
   dati.giorni.forEach(function (g) { perGiorno[g.giorno] = g; });
@@ -545,7 +550,7 @@ document.addEventListener("keydown", function (ev) { if (ev.key === "Escape" && 
 
 // ── il MENU, la prima pagina (8/11/2026, Isa: «come c'è su excalibur online»): un pulsante per reparto ──────────
 function vai(r) {
-  if (!dati || (r === "conti" && !dati.conti)) return;
+  if (!dati || (r === "conti" && !dati.conti) || (r === "posizioni" && !dati.posizioni)) return;
   reparto = r; giornoAperto = null; disegna.fatto = false;      // il calendario riparte dalla settimana di oggi
   spingi({r: r});
   disegna();
@@ -598,6 +603,11 @@ function disegnaMenu() {
            ["avvisi", "⚠️", "AVVISI", qtAvv, urg || sa ? "ro" : ""]];
   if (dati.conti) p.push(["conti", "💶", "CONTI", "incassi, spese, autisti", ""]);
   p.push(["cerca", "🔍", "CERCA", "cliente, telefono, posto", ""]);
+  if (dati.posizioni) {                                           // 20/11/2026: solo coi dati di un M Gest 0.29 o più nuovo
+    var np = dati.posizioni.length;
+    p.push(["posizioni", "📍", "POSIZIONI", np ? (np === 1 ? "1 autista" : np + " autisti") + "<br>l'ultima " +
+            e(quandoBreve(dati.posizioni[0].quando)) : "nessuna nelle ultime 24 ore", ""]);
+  }
   $("vista").innerHTML = '<div class="menu">' + p.map(function (x) {
     return '<button type="button" data-r="' + x[0] + '"' + (x[0] === "avvisi" && urg ? ' class="rosso"' : "") + '><span class="em" aria-hidden="true">' + x[1] +
       '</span><span class="nm">' + x[2] + '</span><span class="qt' + (x[4] ? " " + x[4] : "") + '">' + x[3] + "</span></button>";
@@ -651,6 +661,30 @@ function disegnaAvvisi() {
   Array.prototype.forEach.call(document.querySelectorAll(".avv .elenco button[data-g]"), function (b) {
     b.onclick = function () { apriGiorno(b.getAttribute("data-g")); };
   });
+}
+
+// ── POSIZIONI (20/11/2026, Moreno: «la possibilità per il capo di vedere la posizione dell'autista»): l'ULTIMA posizione
+// che ogni autista ha mandato col suo pulsante, come la vede il PC (24 ore, poi sparisce). Non è in tempo reale. ─────────
+function quandoBreve(q) {                     // «AAAA-MM-GGTHH:MM» → «oggi 10:42», «ieri 22:10», «29/10 22:10»
+  var g = String(q || "").slice(0, 10), o = String(q || "").slice(11, 16), oi = oggiIso();
+  if (g === oi) return "oggi " + o;
+  if (g === iso(piu(d(oi), -1))) return "ieri " + o;
+  return giornoIt(g).slice(0, 5) + " " + o;
+}
+function disegnaPosizioni() {
+  var ps = dati.posizioni || [];
+  var h = '<div class="pos"><div class="giorno-testa"><h2>Posizioni</h2></div>' +
+    '<p class="deb">L\'ultima posizione che ogni autista ha mandato dal telefono, col suo pulsante «Invio posizione». ' +
+    "Non è in tempo reale: è il punto e l'ora in cui l'ha mandata. Dopo 24 ore sparisce.</p>";
+  if (!ps.length) h += '<p class="deb">Nessun autista ha mandato la posizione nelle ultime 24 ore.</p>';
+  else h += ps.map(function (p) {
+    var mappa = "https://www.google.com/maps/search/?api=1&query=" + Number(p.lat).toFixed(6) + "," + Number(p.lon).toFixed(6);
+    return '<div class="rigapos"><b>👤 ' + e(p.autista) + "</b> · " + e(quandoBreve(p.quando)) +
+      (p.prec ? ' <span class="deb">(precisione ± ' + e(p.prec) + " m)</span>" : "") +
+      (p.nota ? "<br>«" + e(p.nota) + "»" : "") +
+      '<br><a class="b" href="' + e(mappa) + '" target="_blank" rel="noopener noreferrer">🗺️ MAPPA</a></div>';
+  }).join("");
+  $("vista").innerHTML = h + "</div>";
 }
 
 // ── CERCA: nei servizi della pagina, per cliente, telefono, posto, volo, mezzo, targa, autista, evento ──────────────
